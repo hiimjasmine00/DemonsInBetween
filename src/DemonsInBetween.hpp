@@ -1,3 +1,6 @@
+#include <cocos2d.h>
+#include <Geode/Enums.hpp>
+#include <Geode/GeneratedPredeclare.hpp>
 #include <Geode/utils/web.hpp>
 
 struct LadderDemon {
@@ -46,10 +49,10 @@ public:
     static GJFeatureState stateForLevel(GJGameLevel*);
     static void loadDemonForLevel(
         geode::EventListener<geode::utils::web::WebTask>&&, int, bool,
-        std::function<void(LadderDemon&)> const&, std::function<void()> const&
+        const std::function<void(LadderDemon&)>&
     );
     static void searchObjectForPage(
         geode::EventListener<geode::utils::web::WebTask>&&, int, bool,
-        std::function<void(GJSearchObject*)> const&, std::function<void()> const&
+        const std::function<void(GJSearchObject*)>&
     );
 };

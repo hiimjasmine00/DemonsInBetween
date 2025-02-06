@@ -1,17 +1,20 @@
 #include "../DemonsInBetween.hpp"
+#include <Geode/binding/GJDifficultySprite.hpp>
+#include <Geode/binding/GJGameLevel.hpp>
+#include <Geode/modify/LevelInfoLayer.hpp>
+#include <Geode/ui/BasedButtonSprite.hpp>
+#include <Geode/ui/Popup.hpp>
 
 using namespace geode::prelude;
 
-#include <Geode/modify/LevelInfoLayer.hpp>
 class $modify(DIBLevelInfoLayer, LevelInfoLayer) {
     struct Fields {
         EventListener<web::WebTask> m_listener;
         bool m_createDemon;
-        CCMenuItemSpriteExtra* m_demonInfoButton;
     };
 
-    static void onModify(auto& self) {
-        (void)self.setHookPriority("LevelInfoLayer::init", -50); // gddp integration is -42 D:
+    static void onModify(ModifyBase<ModifyDerive<DIBLevelInfoLayer, LevelInfoLayer>>& self) {
+        (void)self.setHookPriorityAfterPost("LevelInfoLayer::init", "minemaker0430.gddp_integration");
     }
 
     bool init(GJGameLevel* level, bool challenge) {
@@ -43,8 +46,7 @@ class $modify(DIBLevelInfoLayer, LevelInfoLayer) {
 
         DemonsInBetween::loadDemonForLevel(std::move(m_fields->m_listener), levelID, false, [this](LadderDemon& demon) {
             createUI(demon);
-            release();
-        }, [this] { retain(); });
+        });
 
         return true;
     }
@@ -103,25 +105,23 @@ class $modify(DIBLevelInfoLayer, LevelInfoLayer) {
             DemonsInBetween::LEVELS_LOADED.erase(levelID);
             DemonsInBetween::loadDemonForLevel(std::move(m_fields->m_listener), levelID, false, [this](LadderDemon& demon) {
                 createUI(demon);
-                release();
-            }, [this] { retain(); });
+            });
         });
     }
 
-    void createUI(LadderDemon const& demon) {
-        auto f = m_fields.self();
-        if (f->m_demonInfoButton) f->m_demonInfoButton->removeFromParent();
+    void createUI(const LadderDemon& demon) {
+        auto leftSideMenu = getChildByID("left-side-menu");
+        if (auto demonInfoButton = leftSideMenu->getChildByID("demon-info-button"_spr)) demonInfoButton->removeFromParent();
 
-        f->m_demonInfoButton = CCMenuItemSpriteExtra::create(
+        auto demonInfoButton = CCMenuItemSpriteExtra::create(
             CircleButtonSprite::createWithSpriteFrameName(fmt::format("DIB_{:02d}_001.png"_spr, demon.difficulty).c_str()),
             this, menu_selector(DIBLevelInfoLayer::onDemonInfo)
         );
-        f->m_demonInfoButton->setID("demon-info-button"_spr);
-        auto leftSideMenu = getChildByID("left-side-menu");
-        leftSideMenu->addChild(f->m_demonInfoButton);
+        demonInfoButton->setID("demon-info-button"_spr);
+        leftSideMenu->addChild(demonInfoButton);
         leftSideMenu->updateLayout();
 
-        if (!f->m_createDemon) return;
+        if (!m_fields->m_createDemon) return;
 
         if (auto betweenDifficultySprite = static_cast<CCSprite*>(getChildByID("between-difficulty-sprite"_spr))) {
             betweenDifficultySprite->setDisplayFrame(

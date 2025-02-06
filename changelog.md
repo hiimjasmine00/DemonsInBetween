@@ -1,4 +1,8 @@
 # Demons In Between Changelog
+## v1.4.7 (2025-02-06)
+- Redesigned the mod logo
+- Updated the gallery to include the demon breakdown
+
 ## v1.4.6 (2025-01-07)
 - Added back demon refresh button in the level info page
 - Fixed enjoyment rating not showing up in the demon info popup

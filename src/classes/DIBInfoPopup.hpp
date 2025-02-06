@@ -1,3 +1,4 @@
+#include <Geode/ui/Popup.hpp>
 #include <Geode/utils/web.hpp>
 
 struct CachedLadderDemon {

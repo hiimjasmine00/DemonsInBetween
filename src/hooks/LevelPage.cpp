@@ -1,11 +1,13 @@
 #include "../DemonsInBetween.hpp"
+#include <Geode/binding/GameStatsManager.hpp>
+#include <Geode/binding/GJGameLevel.hpp>
+#include <Geode/modify/LevelPage.hpp>
 
 using namespace geode::prelude;
 
-#include <Geode/modify/LevelPage.hpp>
 class $modify(DIBLevelPage, LevelPage) {
-    static void onModify(auto& self) {
-        (void)self.setHookPriority("LevelPage::updateDynamicPage", -1); // overcharged main levels is 0 D:
+    static void onModify(ModifyBase<ModifyDerive<DIBLevelPage, LevelPage>>& self) {
+        (void)self.setHookPriorityAfterPost("LevelPage::updateDynamicPage", "firee.overchargedlevels");
     }
 
     void updateDynamicPage(GJGameLevel* level) {

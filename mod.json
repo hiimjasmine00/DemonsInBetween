@@ -1,22 +1,18 @@
 {
-    "geode": "4.1.2",
+    "geode": "4.2.0",
     "gd": {
         "android": "2.2074",
         "win": "2.2074",
         "mac": "2.2074"
     },
-    "version": "v1.4.6",
+    "version": "v1.4.7",
     "id": "hiimjustin000.demons_in_between",
     "name": "Demons In Between",
-    "developer": "hiimjustin000",
+    "developer": "hiimjasmine00",
     "description": "A mod that adds demon difficulties in between existing ones.",
-    "dependencies": [
-        {
-            "id": "geode.node-ids",
-            "version": ">=v1.12.0",
-            "importance": "required"
-        }
-    ],
+    "dependencies": {
+        "geode.node-ids": ">=v1.12.0"
+    },
     "resources": {
         "spritesheets": {
             "DIB_IconSheet": [
@@ -65,15 +61,15 @@
             "default": true
         },
         "gddp-integration-override": {
-            "name": "GDDP Integration Override",
-            "description": "Whether or not to override the GDDP Integration difficulties.",
+            "name": "GDDP Override",
+            "description": "Whether or not to override the GDDP difficulties.",
             "type": "bool",
             "default": false
         }
     },
     "links": {
         "community": "https://discord.gg/QVKmbvBXA7",
-        "source": "https://github.com/hiimjustin000/DemonsInBetween",
+        "source": "https://github.com/hiimjasmine00/DemonsInBetween",
         "homepage": "https://www.hiimjustin000.com"
     },
     "tags": [

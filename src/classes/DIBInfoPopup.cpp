@@ -1,5 +1,13 @@
-#include "../DemonsInBetween.hpp"
 #include "DIBInfoPopup.hpp"
+#include "../DemonsInBetween.hpp"
+#include <Geode/binding/ButtonSprite.hpp>
+#include <Geode/binding/GameLevelManager.hpp>
+#include <Geode/binding/GameStatsManager.hpp>
+#include <Geode/binding/GameToolbox.hpp>
+#include <Geode/binding/GJGameLevel.hpp>
+#include <Geode/binding/LoadingCircle.hpp>
+#include <Geode/loader/Mod.hpp>
+#include <Geode/utils/ranges.hpp>
 
 using namespace geode::prelude;
 
@@ -67,11 +75,7 @@ bool DIBInfoPopup::setup() {
                 CACHED_DEMONS.push_back(demon);
             }
 
-            retain();
-            queueInMainThread([this] {
-                setupDemonInfo();
-                release();
-            });
+            setupDemonInfo();
         }
     });
 
@@ -98,10 +102,10 @@ void DIBInfoPopup::setupDemonInfo() {
         else classicCompleted++;
 
         auto levelID = level->m_levelID.value();
-        auto demon = std::find_if(CACHED_DEMONS.begin(), CACHED_DEMONS.end(), [levelID](auto const& d) {
+        auto demon = ranges::find(CACHED_DEMONS, [levelID](const CachedLadderDemon& d) {
             return d.id == levelID;
         });
-        if (demon == CACHED_DEMONS.end() || demon->id == 0 || demon->difficulty == 0) {
+        if (!demon.has_value() || demon->id == 0 || demon->difficulty == 0) {
             auto& completionCount = isPlatformer ? m_completionCountPlatformer : m_completionCountClassic;
             auto difficulty = DemonsInBetween::difficultyForDemonDifficulty(level->m_demonDifficulty);
             if (difficulty > 0) completionCount[difficulty - 1]++;
@@ -146,8 +150,8 @@ void DIBInfoPopup::setupDemonInfo() {
 
     for (auto [dailyID, dailyLevel] : CCDictionaryExt<std::string, GJGameLevel*>(glm->m_dailyLevels)) {
         if (dailyLevel->m_stars.value() < 10 || dailyLevel->m_normalPercent.value() < 100 || !gsm->hasCompletedLevel(dailyLevel)) continue;
-        if (dailyLevel->m_dailyID >= 200000) eventCompleted++;
-        else if (dailyLevel->m_dailyID >= 100000) weeklyCompleted++;
+        if (dailyLevel->m_dailyID > 200000) eventCompleted++;
+        else if (dailyLevel->m_dailyID > 100000) weeklyCompleted++;
     }
 
     for (auto [levelID, gauntletLevel] : CCDictionaryExt<std::string, GJGameLevel*>(glm->m_gauntletLevels)) {
@@ -237,10 +241,7 @@ void DIBInfoPopup::onClose(CCObject*) {
 }
 
 void DIBInfoPopup::keyDown(enumKeyCodes key) {
-    if (!m_loaded) {
-        Popup<>::keyDown(key);
-        return;
-    }
+    if (!m_loaded) return Popup<>::keyDown(key);
 
     switch (key) {
         case KEY_Left: case CONTROLLER_Left:

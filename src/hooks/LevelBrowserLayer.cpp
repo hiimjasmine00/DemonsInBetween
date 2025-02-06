@@ -1,9 +1,9 @@
-#include <random>
 #include "../DemonsInBetween.hpp"
+#include <Geode/binding/SetIDPopup.hpp>
+#include <Geode/modify/LevelBrowserLayer.hpp>
+#include <random>
 
 using namespace geode::prelude;
-
-#include <Geode/modify/LevelBrowserLayer.hpp>
 class $modify(DIBLevelBrowserLayer, LevelBrowserLayer) {
     struct Fields {
         EventListener<web::WebTask> m_listener;
@@ -11,10 +11,10 @@ class $modify(DIBLevelBrowserLayer, LevelBrowserLayer) {
         bool m_loadingPage;
     };
 
-    static void onModify(auto& self) {
-        (void)self.setHookPriority("LevelBrowserLayer::init", -1); // betterinfo is 0 D:
-        (void)self.setHookPriority("LevelBrowserLayer::setupPageInfo", -1); // betterinfo is 0 D:
-        (void)self.setHookPriority("LevelBrowserLayer::loadPage", -1); // betterinfo is 0 D:
+    static void onModify(ModifyBase<ModifyDerive<DIBLevelBrowserLayer, LevelBrowserLayer>>& self) {
+        (void)self.setHookPriorityAfterPost("LevelBrowserLayer::init", "cvolton.betterinfo");
+        (void)self.setHookPriorityAfterPost("LevelBrowserLayer::setupPageInfo", "cvolton.betterinfo");
+        (void)self.setHookPriorityAfterPost("LevelBrowserLayer::loadPage", "cvolton.betterinfo");
     }
 
     bool init(GJSearchObject* searchObject) {
@@ -62,8 +62,7 @@ class $modify(DIBLevelBrowserLayer, LevelBrowserLayer) {
         DemonsInBetween::searchObjectForPage(std::move(f->m_listener), f->m_currentPage, refresh, [this](GJSearchObject* obj) {
             m_fields->m_loadingPage = false;
             loadPage(obj);
-            release();
-        }, [this] { retain(); });
+        });
     }
 
     void updatePageButtons() {

@@ -1,9 +1,9 @@
-#include "../classes/DIBSearchPopup.hpp"
 #include "../DemonsInBetween.hpp"
+#include "../classes/DIBSearchPopup.hpp"
+#include <Geode/modify/LevelSearchLayer.hpp>
 
 using namespace geode::prelude;
 
-#include <Geode/modify/LevelSearchLayer.hpp>
 class $modify(DIBLevelSearchLayer, LevelSearchLayer) {
     struct Fields {
         CCMenuItemSpriteExtra* m_quickSearchButton;

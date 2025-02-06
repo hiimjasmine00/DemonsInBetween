@@ -1,21 +1,32 @@
 #include "../DemonsInBetween.hpp"
+#include <Geode/binding/GJDifficultySprite.hpp>
+#include <Geode/binding/GJGameLevel.hpp>
+#include <Geode/modify/LevelCell.hpp>
 
 using namespace geode::prelude;
 
-#include <Geode/modify/LevelCell.hpp>
 class $modify(DIBLevelCell, LevelCell) {
     struct Fields {
         EventListener<web::WebTask> m_listener;
     };
 
-    static void onModify(auto& self) {
-        (void)self.setHookPriority("LevelCell::loadFromLevel", -1); // grandpa demon and gddp integration are 0 D:
+    static void onModify(ModifyBase<ModifyDerive<DIBLevelCell, LevelCell>>& self) {
+        auto hookRes = self.getHook("LevelCell::loadFromLevel");
+        if (hookRes.isErr()) return log::error("Failed to get LevelCell::loadFromLevel hook: {}", hookRes.unwrapErr());
+
+        auto hook = hookRes.unwrap();
+        hook->setAutoEnable(Mod::get()->getSettingValue<bool>("enable-difficulties"));
+
+        listenForSettingChanges("enable-difficulties", [hook](bool value) {
+            auto changeRes = value ? hook->enable() : hook->disable();
+            if (changeRes.isErr()) log::error("Failed to {} LevelCell::loadFromLevel hook: {}", value ? "enable" : "disable", changeRes.unwrapErr());
+        });
     }
 
     void loadFromLevel(GJGameLevel* level) {
         LevelCell::loadFromLevel(level);
 
-        if (level->m_stars.value() < 10 || !Mod::get()->getSettingValue<bool>("enable-difficulties")) return;
+        if (level->m_stars.value() < 10) return;
 
         auto difficultyContainer = m_mainLayer->getChildByID("difficulty-container");
         if (!difficultyContainer) difficultyContainer = m_mainLayer->getChildByID("grd-demon-icon-layer");
@@ -30,10 +41,7 @@ class $modify(DIBLevelCell, LevelCell) {
 
         auto levelID = level->m_levelID.value();
         auto demon = DemonsInBetween::demonForLevel(levelID, false);
-        if (demon.id != 0 && demon.difficulty != 0) {
-            createUI(demon, difficultyContainer, difficultySprite);
-            return;
-        }
+        if (demon.id != 0 && demon.difficulty != 0) return createUI(demon, difficultyContainer, difficultySprite);
 
         difficultyContainer->addChild(DemonsInBetween::spriteForDifficulty(
             difficultySprite, DemonsInBetween::difficultyForDemonDifficulty(level->m_demonDifficulty),
@@ -43,17 +51,10 @@ class $modify(DIBLevelCell, LevelCell) {
 
         DemonsInBetween::loadDemonForLevel(std::move(m_fields->m_listener), levelID, false, [this, difficultyContainer, difficultySprite](LadderDemon& demon) {
             createUI(demon, difficultyContainer, difficultySprite);
-            release();
-            difficultyContainer->release();
-            difficultySprite->release();
-        }, [this, difficultyContainer, difficultySprite] {
-            retain();
-            difficultyContainer->retain();
-            difficultySprite->retain();
         });
     }
 
-    void createUI(LadderDemon const& demon, CCNode* difficultyContainer, GJDifficultySprite* difficultySprite) {
+    void createUI(const LadderDemon& demon, CCNode* difficultyContainer, GJDifficultySprite* difficultySprite) {
         if (auto betweenDifficultySprite = static_cast<CCSprite*>(difficultyContainer->getChildByID("between-difficulty-sprite"_spr))) {
             betweenDifficultySprite->setDisplayFrame(
                 DemonsInBetween::spriteFrameForDifficulty(demon.difficulty, GJDifficultyName::Short, DemonsInBetween::stateForLevel(m_level)));

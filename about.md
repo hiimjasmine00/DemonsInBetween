@@ -9,11 +9,15 @@ A mod that adds demon difficulties in between existing ones.
 # Credits
 - [SufficientEbb](user:20865884) - Idea for the mod
 - [HexCodes](user:16858187) - Additional ideas for the mod
-- [Krintop](user:7242014) - Designer of the mod logo and textures
-- [hiimjustin000](user:7466002) - Creator of the mod
+- [Krintop](user:7242014) - Designer of the mod textures
+- [hiimjasmine00](user:7466002) - Creator of the mod
 
 # Gallery
-![Quick Search](hiimjustin000.demons_in_between/quicksearch.png&scale:0.8333)
+![Quick Search](hiimjustin000.demons_in_between/quicksearch.png?width=320)\
+![Demon Info 1](hiimjustin000.demons_in_between/demon-info-1.png?width=320)\
+![Demon Info 2](hiimjustin000.demons_in_between/demon-info-2.png?width=320)\
+![Demon Info 3](hiimjustin000.demons_in_between/demon-info-3.png?width=320)\
+![Demon Info 4](hiimjustin000.demons_in_between/demon-info-4.png?width=320)
 
 # Difficulties
 - Free Demon (Tier 1)
