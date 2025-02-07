@@ -6,9 +6,7 @@
 using namespace geode::prelude;
 class $modify(DIBLevelBrowserLayer, LevelBrowserLayer) {
     struct Fields {
-        EventListener<web::WebTask> m_listener;
         int m_currentPage;
-        bool m_loadingPage;
     };
 
     static void onModify(ModifyBase<ModifyDerive<DIBLevelBrowserLayer, LevelBrowserLayer>>& self) {
@@ -39,30 +37,23 @@ class $modify(DIBLevelBrowserLayer, LevelBrowserLayer) {
     }
 
     void onBetterInfoRandom(CCObject* sender) {
+        if (!DemonsInBetween::SEARCHING) return;
+
         static std::mt19937 mt(std::random_device{}());
-        m_fields->m_currentPage = std::uniform_int_distribution<int>(1, DemonsInBetween::MAX_PAGE)(mt);
-        switchToPage();
+        
+        loadPage(DemonsInBetween::searchObjectForPage(m_fields->m_currentPage = std::uniform_int_distribution<int>(0, DemonsInBetween::MAX_PAGE)(mt)));
     }
 
     void onBetterInfoLast(CCObject* sender) {
-        m_fields->m_currentPage = DemonsInBetween::MAX_PAGE;
-        switchToPage();
+        if (!DemonsInBetween::SEARCHING) return;
+        
+        loadPage(DemonsInBetween::searchObjectForPage(m_fields->m_currentPage = DemonsInBetween::MAX_PAGE));
     }
 
     void onBetterInfoFirst(CCObject* sender) {
-        m_fields->m_currentPage = 0;
-        switchToPage();
-    }
-
-    void switchToPage(bool refresh = false) {
         if (!DemonsInBetween::SEARCHING) return;
-
-        auto f = m_fields.self();
-        f->m_loadingPage = true;
-        DemonsInBetween::searchObjectForPage(std::move(f->m_listener), f->m_currentPage, refresh, [this](GJSearchObject* obj) {
-            m_fields->m_loadingPage = false;
-            loadPage(obj);
-        });
+        
+        loadPage(DemonsInBetween::searchObjectForPage(m_fields->m_currentPage = 0));
     }
 
     void updatePageButtons() {
@@ -70,9 +61,10 @@ class $modify(DIBLevelBrowserLayer, LevelBrowserLayer) {
 
         auto f = m_fields.self();
 
-        m_leftArrow->setVisible(f->m_currentPage > 0);
-        m_rightArrow->setVisible(f->m_currentPage < DemonsInBetween::MAX_PAGE);
-        m_pageBtn->setVisible(DemonsInBetween::SEARCH_SIZE > 10);
+        if (m_leftArrow) m_leftArrow->setVisible(f->m_currentPage > 0);
+        if (m_rightArrow) m_rightArrow->setVisible(f->m_currentPage < DemonsInBetween::MAX_PAGE);
+        if (m_pageBtn) m_pageBtn->setVisible(DemonsInBetween::SEARCH_SIZE > 10);
+        if (m_refreshBtn) m_refreshBtn->setVisible(false);
 
         if (auto pageMenu = getChildByID("page-menu")) {
             if (auto randomButton = pageMenu->getChildByID("cvolton.betterinfo/random-button"))
@@ -89,15 +81,12 @@ class $modify(DIBLevelBrowserLayer, LevelBrowserLayer) {
     void loadPage(GJSearchObject* searchObject) {
         LevelBrowserLayer::loadPage(searchObject);
 
-        if (!DemonsInBetween::SEARCHING || m_fields->m_loadingPage) return;
+        if (!DemonsInBetween::SEARCHING) return;
 
         updatePageButtons();
     }
 
     void loadLevelsFinished(CCArray* levels, const char* key, int type) override {
-        auto f = m_fields.self();
-        if (f->m_loadingPage) return;
-
         LevelBrowserLayer::loadLevelsFinished(levels, key, type);
 
         if (!DemonsInBetween::SEARCHING) return;
@@ -125,8 +114,10 @@ class $modify(DIBLevelBrowserLayer, LevelBrowserLayer) {
 
         if (!DemonsInBetween::SEARCHING) return;
 
-        DemonsInBetween::SEARCHING = false;
         DemonsInBetween::DIFFICULTY = 0;
+        DemonsInBetween::SEARCHING = false;
+        DemonsInBetween::SEARCH_SIZE = 0;
+        DemonsInBetween::MAX_PAGE = 0;
     }
 
     void setIDPopupClosed(SetIDPopup* popup, int page) override {
@@ -134,16 +125,7 @@ class $modify(DIBLevelBrowserLayer, LevelBrowserLayer) {
 
         if (!DemonsInBetween::SEARCHING || popup->getTag() == 4) return;
 
-        m_fields->m_currentPage = std::min(page - 1, DemonsInBetween::MAX_PAGE + 1);
-        switchToPage();
-    }
-
-    void onRefresh(CCObject* sender) {
-        LevelBrowserLayer::onRefresh(sender);
-
-        if (!DemonsInBetween::SEARCHING) return;
-
-        switchToPage(true);
+        loadPage(DemonsInBetween::searchObjectForPage(m_fields->m_currentPage = std::min(page - 1, DemonsInBetween::MAX_PAGE)));
     }
 
     void onGoToPage(CCObject* sender) {
@@ -162,8 +144,7 @@ class $modify(DIBLevelBrowserLayer, LevelBrowserLayer) {
 
         if (!DemonsInBetween::SEARCHING) return;
 
-        m_fields->m_currentPage++;
-        switchToPage();
+        loadPage(DemonsInBetween::searchObjectForPage(++m_fields->m_currentPage));
     }
 
     void onPrevPage(CCObject* sender) {
@@ -171,8 +152,7 @@ class $modify(DIBLevelBrowserLayer, LevelBrowserLayer) {
 
         if (!DemonsInBetween::SEARCHING) return;
 
-        m_fields->m_currentPage--;
-        switchToPage();
+        loadPage(DemonsInBetween::searchObjectForPage(--m_fields->m_currentPage));
     }
 #ifdef GEODE_IS_MACOS // In the Geometry Dash binary for macOS, onNextPage and onPrevPage are inlined into keyDown
     void keyDown(enumKeyCodes key) override {
@@ -182,16 +162,12 @@ class $modify(DIBLevelBrowserLayer, LevelBrowserLayer) {
 
         switch (key) {
             case KEY_Left: case CONTROLLER_Left:
-                if (m_leftArrow && m_leftArrow->isVisible() && m_leftArrow->isEnabled()) {
-                    m_fields->m_currentPage--;
-                    switchToPage();
-                }
+                if (m_leftArrow && m_leftArrow->isVisible() && m_leftArrow->isEnabled())
+                    loadPage(DemonsInBetween::searchObjectForPage(--m_fields->m_currentPage));
                 break;
             case KEY_Right: case CONTROLLER_Right:
-                if (m_rightArrow && m_rightArrow->isVisible() && m_rightArrow->isEnabled()) {
-                    m_fields->m_currentPage++;
-                    switchToPage();
-                }
+                if (m_rightArrow && m_rightArrow->isVisible() && m_rightArrow->isEnabled())
+                    loadPage(DemonsInBetween::searchObjectForPage(++m_fields->m_currentPage));
                 break;
             default:
                 break;

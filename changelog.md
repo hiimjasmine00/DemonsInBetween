@@ -1,5 +1,7 @@
 # Demons In Between Changelog
-## v1.4.7 (2025-02-06)
+## v1.4.7 (2025-02-07)
+- Switched back to the spreadsheet, fixing a few bugs and removing the refresh button
+- Added node IDs to the quick search popup and demon breakdown
 - Redesigned the mod logo
 - Updated the gallery to include the demon breakdown
 

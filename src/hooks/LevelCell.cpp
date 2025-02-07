@@ -6,10 +6,6 @@
 using namespace geode::prelude;
 
 class $modify(DIBLevelCell, LevelCell) {
-    struct Fields {
-        EventListener<web::WebTask> m_listener;
-    };
-
     static void onModify(ModifyBase<ModifyDerive<DIBLevelCell, LevelCell>>& self) {
         auto hookRes = self.getHook("LevelCell::loadFromLevel");
         if (hookRes.isErr()) return log::error("Failed to get LevelCell::loadFromLevel hook: {}", hookRes.unwrapErr());
@@ -40,29 +36,11 @@ class $modify(DIBLevelCell, LevelCell) {
         else if (gddpDifficulty) gddpDifficulty->setVisible(false);
 
         auto levelID = level->m_levelID.value();
-        auto demon = DemonsInBetween::demonForLevel(levelID, false);
-        if (demon.id != 0 && demon.difficulty != 0) return createUI(demon, difficultyContainer, difficultySprite);
+        auto& demon = DemonsInBetween::demonForLevel(levelID);
+        if (demon.id == 0 && demon.difficulty == 0) return;
 
-        difficultyContainer->addChild(DemonsInBetween::spriteForDifficulty(
-            difficultySprite, DemonsInBetween::difficultyForDemonDifficulty(level->m_demonDifficulty),
-            GJDifficultyName::Short, DemonsInBetween::stateForLevel(level)
-        ), 3);
+        difficultyContainer->addChild(DemonsInBetween::spriteForDifficulty(difficultySprite,
+            demon.difficulty, GJDifficultyName::Short, DemonsInBetween::stateForLevel(m_level)), 3);
         difficultySprite->setOpacity(0);
-
-        DemonsInBetween::loadDemonForLevel(std::move(m_fields->m_listener), levelID, false, [this, difficultyContainer, difficultySprite](LadderDemon& demon) {
-            createUI(demon, difficultyContainer, difficultySprite);
-        });
-    }
-
-    void createUI(const LadderDemon& demon, CCNode* difficultyContainer, GJDifficultySprite* difficultySprite) {
-        if (auto betweenDifficultySprite = static_cast<CCSprite*>(difficultyContainer->getChildByID("between-difficulty-sprite"_spr))) {
-            betweenDifficultySprite->setDisplayFrame(
-                DemonsInBetween::spriteFrameForDifficulty(demon.difficulty, GJDifficultyName::Short, DemonsInBetween::stateForLevel(m_level)));
-            betweenDifficultySprite->setPosition(difficultySprite->getPosition() + DemonsInBetween::SHORT_OFFSETS[(size_t)demon.difficulty - 1]);
-        } else {
-            difficultyContainer->addChild(DemonsInBetween::spriteForDifficulty(difficultySprite,
-                demon.difficulty, GJDifficultyName::Short, DemonsInBetween::stateForLevel(m_level)), 3);
-            difficultySprite->setOpacity(0);
-        }
     }
 };

@@ -16,7 +16,7 @@ add_library(${PROJECT_NAME} SHARED
     src/hooks/LevelInfoLayer.cpp
     src/hooks/LevelPage.cpp
     src/hooks/LevelSearchLayer.cpp
-    src/hooks/LevelSelectLayer.cpp
+    src/hooks/MenuLayer.cpp
     src/hooks/ProfilePage.cpp
     src/DemonsInBetween.cpp
 )

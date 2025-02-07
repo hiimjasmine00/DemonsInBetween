@@ -7,7 +7,6 @@
 #include <Geode/binding/GJGameLevel.hpp>
 #include <Geode/binding/LoadingCircle.hpp>
 #include <Geode/loader/Mod.hpp>
-#include <Geode/utils/ranges.hpp>
 
 using namespace geode::prelude;
 
@@ -24,6 +23,23 @@ DIBInfoPopup* DIBInfoPopup::create() {
 }
 
 bool DIBInfoPopup::setup() {
+    setID("DIBInfoPopup");
+    m_mainLayer->setID("main-layer");
+    m_buttonMenu->setID("button-menu");
+    m_bgSprite->setID("background");
+    m_closeBtn->setID("close-button");
+    m_closeBtn->setVisible(false);
+
+    setKeyboardEnabled(true);
+
+    auto okButton = CCMenuItemSpriteExtra::create(
+        ButtonSprite::create("OK", 0, 0, 1.0f, false, "goldFont.fnt", "GJ_button_01.png", 0.0f),
+        this, menu_selector(DIBInfoPopup::onClose)
+    );
+    okButton->setPosition({ 190.0f, 25.0f });
+    okButton->setID("ok-button");
+    m_buttonMenu->addChild(okButton);
+
     m_demonSprites = CCArray::create();
     m_demonSprites->retain();
 
@@ -33,96 +49,57 @@ bool DIBInfoPopup::setup() {
     m_demonPlatformerLabels = CCArray::create();
     m_demonPlatformerLabels->retain();
 
-    m_loadingCircle = LoadingCircle::create();
-    m_loadingCircle->setContentSize({ 380.0f, 210.0f });
-    m_loadingCircle->setParentLayer(m_mainLayer);
-    m_loadingCircle->m_sprite->setPosition({ 190.0f, 105.0f });
-    m_loadingCircle->show();
+    for (int i = 0; i < 5; i++) {
+        auto demonSprite = CCSprite::create();
+        demonSprite->setPosition({ 50.0f + i * 70.0f, 140.0f });
+        demonSprite->setID(fmt::format("demon-sprite-{}", i + 1).c_str());
+        m_mainLayer->addChild(demonSprite);
+        m_demonSprites->addObject(demonSprite);
 
-    auto okButton = CCMenuItemSpriteExtra::create(
-        ButtonSprite::create("OK", 0, 0, 1.0f, false, "goldFont.fnt", "GJ_button_01.png", 0.0f),
-        this, menu_selector(DIBInfoPopup::onClose)
-    );
-    okButton->setPosition({ 190.0f, 25.0f });
-    m_buttonMenu->addChild(okButton);
+        auto classicLabel = CCLabelBMFont::create("", "goldFont.fnt");
+        classicLabel->setScale(0.6f);
+        classicLabel->setPosition({ 50.0f + i * 70.0f, 90.0f });
+        classicLabel->setID(fmt::format("classic-label-{}", i + 1).c_str());
+        m_mainLayer->addChild(classicLabel);
+        m_demonClassicLabels->addObject(classicLabel);
 
-    m_closeBtn->setVisible(false);
-
-    setKeyboardEnabled(true);
-
-    if (!CACHED_DEMONS.empty()) {
-        setupDemonInfo();
-        return true;
+        auto platformerLabel = CCLabelBMFont::create("", "goldFont.fnt");
+        platformerLabel->setScale(0.6f);
+        platformerLabel->setPosition({ 50.0f + i * 70.0f, 64.0f });
+        platformerLabel->setColor({ 255, 200, 255 });
+        platformerLabel->setID(fmt::format("platformer-label-{}", i + 1).c_str());
+        m_mainLayer->addChild(platformerLabel);
+        m_demonPlatformerLabels->addObject(platformerLabel);
     }
-
-    m_listener.bind([this](web::WebTask::Event* e) {
-        if (auto res = e->getValue()) {
-            if (!res->ok()) return;
-
-            auto data = res->string().unwrapOr("");
-            auto lines = string::split(data, "\n");
-            auto keys = string::split(lines[0].substr(1, lines[0].size() - 2), "\",\"");
-            for (size_t i = 1; i < lines.size(); i++) {
-                auto values = string::split(lines[i].substr(1, lines[i].size() - 2), "\",\"");
-                CachedLadderDemon demon;
-                for (size_t j = 0; j < keys.size(); j++) {
-                    auto key = keys[j];
-                    auto value = values[j];
-                    if (key == "ID") demon.id = numFromString<int>(value).unwrapOr(-1);
-                    else if (key == "Tier") demon.difficulty = value != "" ?
-                        DemonsInBetween::DIFFICULTY_INDICES[(int)round(numFromString<double>(value).unwrapOr(0.0))] : 0;
-                }
-                CACHED_DEMONS.push_back(demon);
-            }
-
-            setupDemonInfo();
-        }
-    });
-
-    m_listener.setFilter(web::WebRequest().get(GDDL_URL));
-
-    return true;
-}
-
-void DIBInfoPopup::setupDemonInfo() {
-    m_loadingCircle->setVisible(false);
-    m_loadingCircle->fadeAndRemove();
-    m_loadingCircle->release();
-    m_loadingCircle = nullptr;
 
     auto glm = GameLevelManager::get();
     auto gsm = GameStatsManager::get();
-    auto classicCompleted = 0;
-    auto platformerCompleted = 0;
      for (auto [onlineID, level] : CCDictionaryExt<std::string, GJGameLevel*>(glm->m_onlineLevels)) {
         if (level->m_stars.value() < 10 || level->m_normalPercent.value() < 100 || !gsm->hasCompletedLevel(level)) continue;
 
-        auto isPlatformer = level->m_levelLength == 5;
-        if (isPlatformer) platformerCompleted++;
-        else classicCompleted++;
+        auto& completionCount = level->m_levelLength == 5 ? m_completionCountPlatformer : m_completionCountClassic;
+        completionCount[0]++;
 
-        auto levelID = level->m_levelID.value();
-        auto demon = ranges::find(CACHED_DEMONS, [levelID](const CachedLadderDemon& d) {
-            return d.id == levelID;
-        });
-        if (!demon.has_value() || demon->id == 0 || demon->difficulty == 0) {
-            auto& completionCount = isPlatformer ? m_completionCountPlatformer : m_completionCountClassic;
-            auto difficulty = DemonsInBetween::difficultyForDemonDifficulty(level->m_demonDifficulty);
-            if (difficulty > 0) completionCount[difficulty - 1]++;
-            continue;
+        auto& demon = DemonsInBetween::demonForLevel(level->m_levelID.value());
+        if (demon.id == 0 || demon.difficulty == 0) switch (level->m_demonDifficulty) {
+            case 3: completionCount[4]++; break;
+            case 4: completionCount[7]++; break;
+            case 0: completionCount[11]++; break;
+            case 5: completionCount[15]++; break;
+            case 6: completionCount[20]++; break;
         }
-
-        auto& completionCount = isPlatformer ? m_completionCountPlatformer : m_completionCountClassic;
-        completionCount[demon->difficulty - 1]++;
+        else completionCount[demon.difficulty - 1]++;
     }
 
-    auto classicLabel = CCLabelBMFont::create(fmt::format("Classic: {}", classicCompleted).c_str(), "goldFont.fnt");
+    auto classicLabel = CCLabelBMFont::create(fmt::format("Classic: {}", m_completionCountClassic[0]).c_str(), "goldFont.fnt");
     classicLabel->setScale(0.7f);
+    classicLabel->setID("classic-label");
     m_mainLayer->addChild(classicLabel);
 
-    auto platformerLabel = CCLabelBMFont::create(fmt::format("Platformer: {}", platformerCompleted).c_str(), "goldFont.fnt");
+    auto platformerLabel = CCLabelBMFont::create(fmt::format("Platformer: {}", m_completionCountPlatformer[0]).c_str(), "goldFont.fnt");
     platformerLabel->setScale(0.7f);
     platformerLabel->setColor({ 255, 200, 255 });
+    platformerLabel->setID("platformer-label");
     m_mainLayer->addChild(platformerLabel);
 
     auto titleLabels = CCArray::create();
@@ -142,6 +119,7 @@ void DIBInfoPopup::setupDemonInfo() {
             ->setCrossAxisLineAlignment(AxisAlignment::End)
             ->setGap(10.0f)
     );
+    bottomRightMenu->setID("bottom-right-menu");
     m_mainLayer->addChild(bottomRightMenu, 1);
 
     auto weeklyCompleted = 0;
@@ -161,35 +139,36 @@ void DIBInfoPopup::setupDemonInfo() {
 
     auto gauntletLabel = CCLabelBMFont::create(fmt::format("Gauntlet: {}", gauntletCompleted).c_str(), "goldFont.fnt");
     gauntletLabel->setAnchorPoint({ 1.0f, 0.0f });
+    gauntletLabel->setID("gauntlet-label");
     bottomRightMenu->addChild(gauntletLabel);
 
     auto eventLabel = CCLabelBMFont::create(fmt::format("Event: {}", eventCompleted).c_str(), "goldFont.fnt");
     eventLabel->setAnchorPoint({ 1.0f, 0.0f });
+    eventLabel->setID("event-label");
     bottomRightMenu->addChild(eventLabel);
 
     auto weeklyLabel = CCLabelBMFont::create(fmt::format("Weekly: {}", weeklyCompleted).c_str(), "goldFont.fnt");
     weeklyLabel->setAnchorPoint({ 1.0f, 0.0f });
+    weeklyLabel->setID("weekly-label");
     bottomRightMenu->addChild(weeklyLabel);
 
     bottomRightMenu->updateLayout();
 
-    auto prevButton = CCMenuItemExt::createSpriteExtraWithFrameName("GJ_arrow_01_001.png", 1.0f, [this](auto) {
-        loadPage(m_page - 1);
-    });
+    auto prevButton = CCMenuItemExt::createSpriteExtraWithFrameName("GJ_arrow_01_001.png", 1.0f, [this](auto) { loadPage(m_page - 1); });
     prevButton->setPosition({ -20.0f, 105.0f });
+    prevButton->setID("prev-button");
     m_buttonMenu->addChild(prevButton);
 
     auto nextButtonSprite = CCSprite::createWithSpriteFrameName("GJ_arrow_01_001.png");
     nextButtonSprite->setFlipX(true);
-    auto nextButton = CCMenuItemExt::createSpriteExtra(nextButtonSprite, [this](auto) {
-        loadPage(m_page + 1);
-    });
+    auto nextButton = CCMenuItemExt::createSpriteExtra(nextButtonSprite, [this](auto) { loadPage(m_page + 1); });
     nextButton->setPosition({ 400.0f, 105.0f });
+    nextButton->setID("next-button");
     m_buttonMenu->addChild(nextButton);
 
-    m_loaded = true;
-
     loadPage(0);
+
+    return true;
 }
 
 void DIBInfoPopup::loadPage(int page) {
@@ -197,62 +176,25 @@ void DIBInfoPopup::loadPage(int page) {
 
     auto sfc = CCSpriteFrameCache::get();
     for (int i = 0; i < 5; i++) {
-        auto demonFrame = fmt::format("DIB_{:02d}_btn2_001.png"_spr, m_page * 5 + i + 1);
-        if (m_demonSprites->count() <= i) {
-            auto demonSprite = CCSprite::createWithSpriteFrameName(demonFrame.c_str());
-            demonSprite->setPosition(CCPoint { 50.0f + i * 70.0f, 140.0f } + DemonsInBetween::LONG_OFFSETS[m_page * 5 + i]);
-            m_mainLayer->addChild(demonSprite);
-            m_demonSprites->addObject(demonSprite);
-        }
-        else {
-            auto demonSprite = static_cast<CCSprite*>(m_demonSprites->objectAtIndex(i));
-            demonSprite->setDisplayFrame(sfc->spriteFrameByName(demonFrame.c_str()));
-            demonSprite->setPosition(CCPoint { 50.0f + i * 70.0f, 140.0f } + DemonsInBetween::LONG_OFFSETS[m_page * 5 + i]);
-        }
-
-        auto classicString = fmt::format("{}", m_completionCountClassic[m_page * 5 + i]);
-        if (m_demonClassicLabels->count() <= i) {
-            auto classicLabel = CCLabelBMFont::create(classicString.c_str(), "goldFont.fnt");
-            classicLabel->setScale(0.6f);
-            classicLabel->setPosition({ 50.0f + i * 70.0f, 90.0f });
-            m_mainLayer->addChild(classicLabel);
-            m_demonClassicLabels->addObject(classicLabel);
-        }
-        else static_cast<CCLabelBMFont*>(m_demonClassicLabels->objectAtIndex(i))->setString(classicString.c_str());
-
-        auto platformerString = fmt::format("{}", m_completionCountPlatformer[m_page * 5 + i]);
-        if (m_demonPlatformerLabels->count() <= i) {
-            auto platformerLabel = CCLabelBMFont::create(platformerString.c_str(), "goldFont.fnt");
-            platformerLabel->setScale(0.6f);
-            platformerLabel->setPosition({ 50.0f + i * 70.0f, 64.0f });
-            platformerLabel->setColor({ 255, 200, 255 });
-            m_mainLayer->addChild(platformerLabel);
-            m_demonPlatformerLabels->addObject(platformerLabel);
-        }
-        else static_cast<CCLabelBMFont*>(m_demonPlatformerLabels->objectAtIndex(i))->setString(platformerString.c_str());
+        auto difficulty = m_page * 5 + i + 1;
+        auto demonSprite = static_cast<CCSprite*>(m_demonSprites->objectAtIndex(i));
+        demonSprite->setDisplayFrame(sfc->spriteFrameByName(fmt::format("DIB_{:02d}_btn2_001.png"_spr, difficulty).c_str()));
+        demonSprite->setPosition(CCPoint { 50.0f + i * 70.0f, 140.0f } + DemonsInBetween::offsetForDifficulty(difficulty, GJDifficultyName::Long));
+        static_cast<CCLabelBMFont*>(m_demonClassicLabels->objectAtIndex(i))->setString(fmt::format("{}", m_completionCountClassic[difficulty]).c_str());
+        static_cast<CCLabelBMFont*>(m_demonPlatformerLabels->objectAtIndex(i))->setString(fmt::format("{}", m_completionCountPlatformer[difficulty]).c_str());
     }
 }
 
-void DIBInfoPopup::onClose(CCObject*) {
-    setKeypadEnabled(false);
-    setTouchEnabled(false);
+void DIBInfoPopup::onClose(CCObject* sender) {
     setKeyboardEnabled(false);
-    removeFromParent();
+    Popup<>::onClose(sender);
 }
 
 void DIBInfoPopup::keyDown(enumKeyCodes key) {
-    if (!m_loaded) return Popup<>::keyDown(key);
-
     switch (key) {
-        case KEY_Left: case CONTROLLER_Left:
-            loadPage(m_page - 1);
-            break;
-        case KEY_Right: case CONTROLLER_Right:
-            loadPage(m_page + 1);
-            break;
-        default:
-            Popup<>::keyDown(key);
-            break;
+        case KEY_Left: case CONTROLLER_Left: return loadPage(m_page - 1);
+        case KEY_Right: case CONTROLLER_Right: return loadPage(m_page + 1);
+        default: return Popup<>::keyDown(key);
     }
 }
 
@@ -260,5 +202,4 @@ DIBInfoPopup::~DIBInfoPopup() {
     CC_SAFE_RELEASE(m_demonSprites);
     CC_SAFE_RELEASE(m_demonClassicLabels);
     CC_SAFE_RELEASE(m_demonPlatformerLabels);
-    CC_SAFE_RELEASE(m_loadingCircle);
 }
