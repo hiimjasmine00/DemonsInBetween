@@ -88,7 +88,7 @@ bool DIBInfoPopup::setup() {
             case 5: completionCount[15]++; break;
             case 6: completionCount[20]++; break;
         }
-        else completionCount[demon.difficulty - 1]++;
+        else completionCount[demon.difficulty]++;
     }
 
     auto classicLabel = CCLabelBMFont::create(fmt::format("Classic: {}", m_completionCountClassic[0]).c_str(), "goldFont.fnt");

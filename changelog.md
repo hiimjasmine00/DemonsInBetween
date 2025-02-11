@@ -1,4 +1,8 @@
 # Demons In Between Changelog
+## v1.4.8 (2025-02-11)
+- Added a setting to enable or disable the demon breakdown
+- Fixed a bug where the demon breakdown's numbers would be shifted
+
 ## v1.4.7 (2025-02-07)
 - Switched back to the spreadsheet, fixing a few bugs and removing the refresh button
 - Added node IDs to the quick search popup and demon breakdown

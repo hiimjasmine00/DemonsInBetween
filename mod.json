@@ -5,7 +5,7 @@
         "win": "2.2074",
         "mac": "2.2074"
     },
-    "version": "v1.4.7",
+    "version": "v1.4.8",
     "id": "hiimjustin000.demons_in_between",
     "name": "Demons In Between",
     "developer": "hiimjasmine00",
@@ -65,6 +65,12 @@
             "description": "Whether or not to override the GDDP difficulties.",
             "type": "bool",
             "default": false
+        },
+        "enable-demon-breakdown": {
+            "name": "Enable Demon Breakdown",
+            "description": "Whether or not to enable the demon breakdown in your profile.",
+            "type": "bool",
+            "default": true
         }
     },
     "links": {
