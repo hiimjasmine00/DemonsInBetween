@@ -194,7 +194,7 @@ void DIBInfoPopup::keyDown(enumKeyCodes key) {
     switch (key) {
         case KEY_Left: case CONTROLLER_Left: return loadPage(m_page - 1);
         case KEY_Right: case CONTROLLER_Right: return loadPage(m_page + 1);
-        default: return Popup<>::keyDown(key);
+        default: return Popup::keyDown(key);
     }
 }
 

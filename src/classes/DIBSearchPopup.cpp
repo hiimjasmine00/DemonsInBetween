@@ -37,10 +37,9 @@ bool DIBSearchPopup::setup() {
     m_mainLayer->addChild(table);
 
     for (int i = 1; i < 21; i++) {
-        auto button = CCMenuItemExt::createSpriteExtraWithFrameName(fmt::format("DIB_{:02d}_btn2_001.png"_spr, i).c_str(), 1.0f, [this, i](auto) {;
-            DemonsInBetween::DIFFICULTY = i;
-            DemonsInBetween::SEARCHING = true;
-            CCDirector::get()->pushScene(CCTransitionFade::create(0.5f, LevelBrowserLayer::scene(DemonsInBetween::searchObjectForPage(0))));
+        auto button = CCMenuItemExt::createSpriteExtraWithFrameName(fmt::format("DIB_{:02d}_btn2_001.png"_spr, i).c_str(), 1.0f, [i](auto) {
+            auto scene = DemonsInBetween::browseScene(i);
+            if (scene) CCDirector::get()->pushScene(CCTransitionFade::create(0.5f, scene));
         });
         button->setID(fmt::format("search-button-{}", i).c_str());
         table->addButton(button);

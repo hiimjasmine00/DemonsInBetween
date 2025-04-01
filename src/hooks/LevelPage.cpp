@@ -19,7 +19,7 @@ class $modify(DIBLevelPage, LevelPage) {
         }
 
         auto levelID = level->m_levelID.value();
-        if (levelID < 1 || GameStatsManager::get()->getStat("8") < m_level->m_requiredCoins) return;
+        if (levelID < 1 || GameStatsManager::get()->getStat("8") < level->m_requiredCoins) return;
 
         auto& demon = DemonsInBetween::demonForLevel(levelID);
         if (demon.id == 0 || demon.difficulty == 0) return;

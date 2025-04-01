@@ -1,11 +1,11 @@
 {
-    "geode": "4.2.0",
+    "geode": "4.3.1",
     "gd": {
         "android": "2.2074",
         "win": "2.2074",
         "mac": "2.2074"
     },
-    "version": "v1.4.8",
+    "version": "v1.4.9",
     "id": "hiimjustin000.demons_in_between",
     "name": "Demons In Between",
     "developer": "hiimjasmine00",

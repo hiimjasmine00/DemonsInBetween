@@ -1,4 +1,7 @@
 # Demons In Between Changelog
+## v1.4.9 (2025-04-01)
+- Internal code changes (April Fools' Day)
+
 ## v1.4.8 (2025-02-11)
 - Added a setting to enable or disable the demon breakdown
 - Fixed a bug where the demon breakdown's numbers would be shifted

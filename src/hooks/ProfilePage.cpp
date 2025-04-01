@@ -5,15 +5,21 @@ using namespace geode::prelude;
 
 class $modify(DIBProfilePage, ProfilePage) {
     static void onModify(ModifyBase<ModifyDerive<DIBProfilePage, ProfilePage>>& self) {
-        auto hookRes = self.getHook("ProfilePage::onStatInfo");
-        if (hookRes.isErr()) return log::error("Failed to get ProfilePage::onStatInfo hook: {}", hookRes.unwrapErr());
+        (void)self.getHook("ProfilePage::onStatInfo").map([](Hook* hook) {
+            auto mod = Mod::get();
+            hook->setAutoEnable(mod->getSettingValue<bool>("enable-demon-breakdown"));
 
-        auto hook = hookRes.unwrap();
-        hook->setAutoEnable(true);
+            listenForSettingChanges("enable-demon-breakdown", [hook](bool value) {
+                (void)(value ? hook->enable().mapErr([](const std::string& err) {
+                    return log::error("Failed to enable ProfilePage::onStatInfo hook: {}", err), err;
+                }) : hook->disable().mapErr([](const std::string& err) {
+                    return log::error("Failed to disable ProfilePage::onStatInfo hook: {}", err), err;
+                }));
+            }, mod);
 
-        listenForSettingChanges("enable-demon-breakdown", [hook](bool value) {
-            auto changeRes = value ? hook->enable() : hook->disable();
-            if (changeRes.isErr()) log::error("Failed to {} ProfilePage::onStatInfo hook: {}", value ? "enable" : "disable", changeRes.unwrapErr());
+            return hook;
+        }).mapErr([](const std::string& err) {
+            return log::error("Failed to get ProfilePage::onStatInfo hook: {}", err), err;
         });
     }
 
