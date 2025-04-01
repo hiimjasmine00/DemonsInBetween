@@ -9,7 +9,7 @@ class $modify(DIBProfilePage, ProfilePage) {
             auto mod = Mod::get();
             hook->setAutoEnable(mod->getSettingValue<bool>("enable-demon-breakdown"));
 
-            listenForSettingChanges("enable-demon-breakdown", [hook](bool value) {
+            listenForSettingChangesV3<bool>("enable-demon-breakdown", [hook](bool value) {
                 (void)(value ? hook->enable().mapErr([](const std::string& err) {
                     return log::error("Failed to enable ProfilePage::onStatInfo hook: {}", err), err;
                 }) : hook->disable().mapErr([](const std::string& err) {

@@ -14,7 +14,7 @@ class $modify(DIBLevelCell, LevelCell) {
             auto mod = Mod::get();
             hook->setAutoEnable(mod->getSettingValue<bool>("enable-difficulties"));
 
-            listenForSettingChanges("enable-difficulties", [hook](bool value) {
+            listenForSettingChangesV3<bool>("enable-difficulties", [hook](bool value) {
                 auto changeRes = value ? hook->enable() : hook->disable();
                 if (changeRes.isErr()) log::error("Failed to {} LevelCell::loadFromLevel hook: {}", value ? "enable" : "disable", changeRes.unwrapErr());
                 (void)(value ? hook->enable().mapErr([](const std::string& err) {
