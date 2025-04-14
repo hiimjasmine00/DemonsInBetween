@@ -9,7 +9,7 @@ endif()
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(GEODE_DISABLE_PRECOMPILED_HEADERS ON)
 
-project(DemonsInBetween VERSION 1.4.10)
+project(DemonsInBetween VERSION 1.4.11)
 
 add_library(${PROJECT_NAME} SHARED
     src/classes/DIBInfoPopup.cpp

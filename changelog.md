@@ -1,4 +1,7 @@
 # Demons In Between Changelog
+## v1.4.11 (2025-04-14)
+- Refined iOS support
+
 ## v1.4.10 (2025-04-06)
 - Added support for iOS
 
