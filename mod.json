@@ -1,16 +1,16 @@
 {
-    "geode": "4.3.1",
+    "geode": "4.6.1",
     "gd": {
         "android": "2.2074",
         "win": "2.2074",
         "mac": "2.2074",
         "ios": "2.2074"
     },
-    "version": "v1.4.11",
+    "version": "v1.4.12",
     "id": "hiimjustin000.demons_in_between",
     "name": "Demons In Between",
     "developer": "hiimjasmine00",
-    "description": "A mod that adds demon difficulties in between existing ones.",
+    "description": "Expanded demon difficulties.",
     "dependencies": {
         "geode.node-ids": ">=v1.12.0"
     },

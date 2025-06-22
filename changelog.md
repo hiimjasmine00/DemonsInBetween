@@ -1,4 +1,7 @@
 # Demons In Between Changelog
+## v1.4.12 (2025-06-22)
+- Ported to Geode v4.6.1
+
 ## v1.4.11 (2025-04-14)
 - Refined iOS support
 
