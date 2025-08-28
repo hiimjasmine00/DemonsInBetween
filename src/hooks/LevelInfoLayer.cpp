@@ -63,13 +63,13 @@ class $modify(DIBLevelInfoLayer, LevelInfoLayer) {
 
         FLAlertLayer::create("Demon Info", fmt::format(
             "<cy>{}</c>\n"
-            "<cg>Tier</c>: {:.2f}\n"
+            "<cg>Tier</c>: {}\n"
             "<cl>Enjoyment</c>: {}\n"
             "<cp>Difficulty</c>: {}\n"
             "<co>Original Difficulty</c>: {}",
             GEODE_ANDROID(std::string)(m_level->m_levelName),
-            demon->tier,
-            demon->enjoyment >= 0.0 ? fmt::format("{:.2f}", demon->enjoyment) : "N/A",
+            round(demon->tier * 100.0) / 100.0,
+            demon->enjoyment >= 0.0 ? fmt::to_string(round(demon->enjoyment * 100.0) / 100.0) : "N/A",
             demon->difficulty < difficulties.size() ? difficulties[demon->difficulty] : "Unknown Demon",
             m_level->m_demonDifficulty < originalDifficulties.size() ? originalDifficulties[m_level->m_demonDifficulty] : "Unknown Demon"
         ), "OK")->show();
