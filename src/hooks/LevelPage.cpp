@@ -21,15 +21,16 @@ class $modify(DIBLevelPage, LevelPage) {
         auto levelID = level->m_levelID.value();
         if (levelID < 1 || GameStatsManager::get()->getStat("8") < level->m_requiredCoins) return;
 
-        auto& demon = DemonsInBetween::demonForLevel(levelID);
-        if (demon.id == 0 || demon.difficulty == 0) return;
+        auto demon = DemonsInBetween::demonForLevel(levelID);
+        if (!demon) return;
 
-        auto overcharged = Loader::get()->getLoadedMod("firee.overchargedlevels");
-        auto overchargedEnabled = overcharged && overcharged->getSettingValue<bool>("enabled");
-        auto demonSprite = CCSprite::createWithSpriteFrameName(fmt::format("DIB_{:02d}{}_001.png"_spr, demon.difficulty, overchargedEnabled ? "_btn" : "").c_str());
+        auto overchargedMod = Loader::get()->getLoadedMod("firee.overchargedlevels");
+        auto overcharged = overchargedMod && overchargedMod->getSettingValue<bool>("enabled");
+        auto demonSprite = CCSprite::createWithSpriteFrameName(
+            fmt::format("DIB_{:02d}{}_001.png"_spr, demon->difficulty, overcharged ? "_btn" : "").c_str());
         demonSprite->setPosition(m_difficultySprite->getPosition() +
-            (overchargedEnabled ? DemonsInBetween::offsetForDifficulty(demon.difficulty, GJDifficultyName::Short) * 0.9f : CCPoint { 0.0f, 0.0f }));
-        demonSprite->setScale(overchargedEnabled ? 0.9f : 1.1f);
+            (overcharged ? DemonsInBetween::offsetForDifficulty(demon->difficulty, GJDifficultyName::Short) * 0.9f : CCPoint { 0.0f, 0.0f }));
+        demonSprite->setScale(1.1f - overcharged * 0.2f);
         demonSprite->setID("between-difficulty-sprite"_spr);
         m_levelDisplay->addChild(demonSprite);
         m_difficultySprite->setVisible(false);

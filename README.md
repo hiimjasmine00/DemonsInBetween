@@ -1,25 +1,25 @@
 # Demons In Between
 Expanded demon difficulties.
 
-# Features
+## Features
 - Fifteen new demon difficulties in between the five existing ones, determined using the [Geometry Dash Demon Ladder](https://gdladder.com)
 - A quick search popup in the level search menu for the new demon difficulties
 - A demon info button in the level info page, which includes a button to refresh the demon difficulty of the level
 
-# Credits
+## Credits
 - [SufficientEbb](https://gdbrowser.com/u/20865884) - Idea for the mod
 - [HexCodes](https://gdbrowser.com/u/16858187) - Additional ideas for the mod
 - [Krintop](https://gdbrowser.com/u/7242014) - Designer of the mod textures
 - [hiimjasmine00](https://gdbrowser.com/u/7466002) - Creator of the mod
 
-# Gallery
+## Gallery
 ![Quick Search](./resources/quicksearch.png)\
 ![Demon Info 1](./resources/demon-info-1.png)\
 ![Demon Info 2](./resources/demon-info-2.png)\
 ![Demon Info 3](./resources/demon-info-3.png)\
 ![Demon Info 4](./resources/demon-info-4.png)
 
-# Difficulties
+## Difficulties
 - Free Demon (Tier 1)
 - Peaceful Demon (Tier 2)
 - Simple Demon (Tier 3)
@@ -41,5 +41,5 @@ Expanded demon difficulties.
 - Brutal Demon (Tier 22)
 - Extreme Demon (Tiers 23-35)
 
-# License
-This mod is licensed under the [MIT License](./LICENSE).
+## License
+This mod is licensed under the [MIT License](https://github.com/hiimjasmine00/DemonsInBetween/blob/master/LICENSE).

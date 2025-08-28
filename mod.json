@@ -1,18 +1,22 @@
 {
-    "geode": "4.6.1",
+    "geode": "4.8.0",
     "gd": {
         "android": "2.2074",
         "win": "2.2074",
         "mac": "2.2074",
         "ios": "2.2074"
     },
-    "version": "v1.4.12",
+    "version": "v1.5.0",
     "id": "hiimjustin000.demons_in_between",
     "name": "Demons In Between",
     "developer": "hiimjasmine00",
     "description": "Expanded demon difficulties.",
     "dependencies": {
-        "geode.node-ids": ">=v1.12.0"
+        "geode.node-ids": ">=v1.1.0",
+        "hiimjasmine00.user_data_api": {
+            "version": ">=v1.1.0",
+            "importance": "recommended"
+        }
     },
     "resources": {
         "spritesheets": {
@@ -71,6 +75,13 @@
             "name": "Enable Demon Breakdown",
             "description": "Whether or not to enable the demon breakdown in your profile.",
             "type": "bool",
+            "default": true
+        },
+        "send-demon-breakdown": {
+            "name": "Send Demon Breakdown",
+            "description": "Whether or not to send your demon breakdown to the User Data API.",
+            "type": "bool",
+            "enable-if": "enable-demon-breakdown",
             "default": true
         }
     },

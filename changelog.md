@@ -1,4 +1,7 @@
 # Demons In Between Changelog
+## v1.5.0 (2025-08-28)
+- Added the ability to upload demon breakdowns via the "User Data API" mod
+
 ## v1.4.12 (2025-06-22)
 - Ported to Geode v4.6.1
 

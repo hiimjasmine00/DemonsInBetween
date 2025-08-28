@@ -108,7 +108,7 @@ class $modify(DIBLevelBrowserLayer, LevelBrowserLayer) {
         m_countText->setString(fmt::format("{} to {} of {}",
             f->m_currentPage * 10 + 1, std::min(f->m_searchSize, (f->m_currentPage + 1) * 10), f->m_searchSize).c_str());
         m_countText->limitLabelWidth(100.0f, 0.6f, 0.0f);
-        m_pageText->setString(std::to_string(f->m_currentPage + 1).c_str());
+        m_pageText->setString(fmt::to_string(f->m_currentPage + 1).c_str());
         m_pageText->limitLabelWidth(32.0f, 0.8f, 0.0f);
 
         updatePageButtons();
@@ -185,7 +185,8 @@ CCScene* DemonsInBetween::browseScene(int difficulty) {
     f->m_searchSize = levels.size();
     f->m_maxPage = (levels.size() - 1) / 10;
     if (layer->init(DemonsInBetween::searchObjectForPage(difficulty, 0))) {
-        scene->addChild(static_cast<CCNode*>(layer->autorelease()));
+        layer->autorelease();
+        scene->addChild(layer);
         return scene;
     }
     delete layer;

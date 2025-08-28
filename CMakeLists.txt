@@ -9,21 +9,11 @@ endif()
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(GEODE_DISABLE_PRECOMPILED_HEADERS ON)
 
-project(DemonsInBetween VERSION 1.4.12)
+project(DemonsInBetween VERSION 1.5.0)
 
-add_library(${PROJECT_NAME} SHARED
-    src/classes/DIBInfoPopup.cpp
-    src/classes/DIBSearchPopup.cpp
-    src/classes/TableNode.cpp
-    src/hooks/LevelBrowserLayer.cpp
-    src/hooks/LevelCell.cpp
-    src/hooks/LevelInfoLayer.cpp
-    src/hooks/LevelPage.cpp
-    src/hooks/LevelSearchLayer.cpp
-    src/hooks/MenuLayer.cpp
-    src/hooks/ProfilePage.cpp
-    src/DemonsInBetween.cpp
-)
+file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS src/*.cpp)
+
+add_library(${PROJECT_NAME} SHARED ${SOURCES})
 
 if (NOT DEFINED ENV{GEODE_SDK})
     message(FATAL_ERROR "Unable to find Geode SDK! Please define GEODE_SDK environment variable to point to Geode")

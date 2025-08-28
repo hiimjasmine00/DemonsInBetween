@@ -36,11 +36,11 @@ class $modify(DIBLevelInfoLayer, LevelInfoLayer) {
         else if (gddpDifficulty) gddpDifficulty->setVisible(false);
 
         auto levelID = level->m_levelID.value();
-        auto& demon = DemonsInBetween::demonForLevel(levelID);
-        if (demon.id == 0 || demon.difficulty == 0) return true;
+        auto demon = DemonsInBetween::demonForLevel(levelID);
+        if (!demon) return true;
 
         auto demonInfoButton = CCMenuItemSpriteExtra::create(
-            CircleButtonSprite::createWithSpriteFrameName(fmt::format("DIB_{:02d}_001.png"_spr, demon.difficulty).c_str()),
+            CircleButtonSprite::createWithSpriteFrameName(fmt::format("DIB_{:02d}_001.png"_spr, demon->difficulty).c_str()),
             this, menu_selector(DIBLevelInfoLayer::onDemonInfo)
         );
         demonInfoButton->setID("demon-info-button"_spr);
@@ -48,29 +48,29 @@ class $modify(DIBLevelInfoLayer, LevelInfoLayer) {
         leftSideMenu->addChild(demonInfoButton);
         leftSideMenu->updateLayout();
 
-        if (!createDemon) return true;
-
-        addChild(DemonsInBetween::spriteForDifficulty(m_difficultySprite->getPosition(),
-            demon.difficulty, GJDifficultyName::Long, DemonsInBetween::stateForLevel(m_level)), 3);
-        m_difficultySprite->setOpacity(0);
+        if (createDemon) {
+            addChild(DemonsInBetween::spriteForDifficulty(m_difficultySprite->getPosition(),
+                demon->difficulty, GJDifficultyName::Long, DemonsInBetween::stateForLevel(m_level)), 3);
+            m_difficultySprite->setOpacity(0);
+        }
 
         return true;
     }
 
     void onDemonInfo(CCObject* sender) {
-        auto& demon = DemonsInBetween::demonForLevel(m_level->m_levelID.value());
-        if (demon.id == 0 || demon.difficulty == 0) return;
+        auto demon = DemonsInBetween::demonForLevel(m_level->m_levelID.value());
+        if (!demon) return;
 
         FLAlertLayer::create("Demon Info", fmt::format(
             "<cy>{}</c>\n"
-            "<cg>Tier</c>: {}\n"
+            "<cg>Tier</c>: {:.2f}\n"
             "<cl>Enjoyment</c>: {}\n"
             "<cp>Difficulty</c>: {}\n"
             "<co>Original Difficulty</c>: {}",
             GEODE_ANDROID(std::string)(m_level->m_levelName),
-            round(demon.tier * 100.0) / 100.0,
-            demon.enjoyment >= 0.0 ? fmt::format("{}", round(demon.enjoyment * 100.0) / 100.0) : "N/A",
-            demon.difficulty < difficulties.size() ? difficulties[demon.difficulty] : "Unknown Demon",
+            demon->tier,
+            demon->enjoyment >= 0.0 ? fmt::format("{:.2f}", demon->enjoyment) : "N/A",
+            demon->difficulty < difficulties.size() ? difficulties[demon->difficulty] : "Unknown Demon",
             m_level->m_demonDifficulty < originalDifficulties.size() ? originalDifficulties[m_level->m_demonDifficulty] : "Unknown Demon"
         ), "OK")->show();
     }
