@@ -7,17 +7,26 @@ using namespace geode::prelude;
 
 class $modify(DIBGameLevelManager, GameLevelManager) {
     static void onModify(ModifyBase<ModifyDerive<DIBGameLevelManager, GameLevelManager>>& self) {
-        self.getHook("GameLevelManager::onUpdateUserScoreFinished").inspect([](Hook* hook) {
+        self.getHook("GameLevelManager::onUpdateUserScoreCompleted").inspect([](Hook* hook) {
             auto mod = Mod::get();
-            hook->setAutoEnable(mod->getSettingValue<bool>("send-demon-breakdown"));
+            hook->setAutoEnable(mod->getSettingValue<bool>("enable-demon-breakdown") && mod->getSettingValue<bool>("send-demon-breakdown"));
 
-            listenForSettingChangesV3<bool>("send-demon-breakdown", [hook](bool value) {
-                hook->toggle(value).inspectErr([](const std::string& err) {
-                    log::error("Failed to toggle GameLevelManager::onUpdateUserScoreFinished hook: {}", err);
+            listenForAllSettingChangesV3([hook](std::shared_ptr<SettingV3> setting) {
+                auto mod = Mod::get();
+                auto key = setting->getKey();
+                auto enableDemonBreakdown = key == "enable-demon-breakdown"
+                    ? std::static_pointer_cast<BoolSettingV3>(setting)->getValue()
+                    : mod->getSettingValue<bool>("enable-demon-breakdown");
+                auto sendDemonBreakdown = key == "send-demon-breakdown"
+                    ? std::static_pointer_cast<BoolSettingV3>(setting)->getValue()
+                    : mod->getSettingValue<bool>("send-demon-breakdown");
+
+                hook->toggle(enableDemonBreakdown && sendDemonBreakdown).inspectErr([](const std::string& err) {
+                    log::error("Failed to toggle GameLevelManager::onUpdateUserScoreCompleted hook: {}", err);
                 });
             }, mod);
         }).inspectErr([](const std::string& err) {
-            log::error("Failed to get GameLevelManager::onUpdateUserScoreFinished hook: {}", err);
+            log::error("Failed to get GameLevelManager::onUpdateUserScoreCompleted hook: {}", err);
         });
     }
 
