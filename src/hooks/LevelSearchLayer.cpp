@@ -6,7 +6,7 @@ using namespace geode::prelude;
 
 class $modify(DIBLevelSearchLayer, LevelSearchLayer) {
     struct Fields {
-        CCMenuItemSpriteExtra* m_quickSearchButton;
+        CCMenuItemSpriteExtra* m_quickSearchButton = nullptr;
     };
 
     bool init(int searchType) {

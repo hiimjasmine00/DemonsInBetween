@@ -8,12 +8,12 @@
 using namespace geode::prelude;
 
 class $modify(DIBLevelInfoLayer, LevelInfoLayer) {
-    inline static constexpr std::array difficulties = {
+    static constexpr std::array difficulties = {
         "Unknown Demon", "Free Demon", "Peaceful Demon", "Simple Demon", "Easy Demon", "Casual Demon", "Mild Demon",
         "Medium Demon", "Normal Demon", "Moderate Demon", "Tricky Demon", "Hard Demon", "Harder Demon", "Tough Demon",
         "Wild Demon", "Insane Demon", "Cruel Demon", "Crazy Demon", "Bizarre Demon", "Brutal Demon", "Extreme Demon"
     };
-    inline static constexpr std::array originalDifficulties = {
+    static constexpr std::array originalDifficulties = {
         "Hard Demon", "Unknown Demon", "Unknown Demon", "Easy Demon", "Medium Demon", "Insane Demon", "Extreme Demon"
     };
 

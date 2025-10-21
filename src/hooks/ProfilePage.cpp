@@ -8,19 +8,18 @@ using namespace geode::prelude;
 
 class $modify(DIBProfilePage, ProfilePage) {
     static void onModify(ModifyBase<ModifyDerive<DIBProfilePage, ProfilePage>>& self) {
-        self.getHook("ProfilePage::onStatInfo").inspect([](Hook* hook) {
+        if (auto it = self.m_hooks.find("ProfilePage::onStatInfo"); it != self.m_hooks.end()) {
+            auto hook = it->second.get();
             auto mod = Mod::get();
             hook->setAutoEnable(mod->getSettingValue<bool>("enable-demon-breakdown"));
             hook->setPriority(Priority::Replace);
 
             listenForSettingChangesV3<bool>("enable-demon-breakdown", [hook](bool value) {
-                hook->toggle(value).inspectErr([](const std::string& err) {
-                    log::error("Failed to toggle ProfilePage::onStatInfo hook: {}", err);
-                });
+                if (auto err = hook->toggle(value).err()) {
+                    log::error("Failed to toggle ProfilePage::onStatInfo hook: {}", *err);
+                }
             }, mod);
-        }).inspectErr([](const std::string& err) {
-            log::error("Failed to get ProfilePage::onStatInfo hook: {}", err);
-        });
+        }
     }
 
     void onStatInfo(CCObject* sender) {
@@ -29,7 +28,7 @@ class $modify(DIBProfilePage, ProfilePage) {
                 return DIBInfoPopup::create(DemonsInBetween::createBreakdown())->show();
             }
             else if (auto data = user_data::get<DemonBreakdown>(m_score)) {
-                return DIBInfoPopup::create(std::move(data).unwrap())->show();
+                return DIBInfoPopup::create(data.unwrap())->show();
             }
         }
 

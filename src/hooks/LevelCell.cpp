@@ -10,18 +10,17 @@ class $modify(DIBLevelCell, LevelCell) {
         (void)self.setHookPriorityAfterPost("LevelCell::loadFromLevel", "itzkiba.grandpa_demon");
         (void)self.setHookPriorityAfterPost("LevelCell::loadFromLevel", "minemaker0430.gddp_integration");
 
-        self.getHook("LevelCell::loadFromLevel").inspect([](Hook* hook) {
+        if (auto it = self.m_hooks.find("LevelCell::loadFromLevel"); it != self.m_hooks.end()) {
+            auto hook = it->second.get();
             auto mod = Mod::get();
             hook->setAutoEnable(mod->getSettingValue<bool>("enable-difficulties"));
 
             listenForSettingChangesV3<bool>("enable-difficulties", [hook](bool value) {
-                hook->toggle(value).inspectErr([](const std::string& err) {
-                    log::error("Failed to toggle LevelCell::loadFromLevel hook: {}", err);
-                });
+                if (auto err = hook->toggle(value).err()) {
+                    log::error("Failed to toggle LevelCell::loadFromLevel hook: {}", *err);
+                }
             }, mod);
-        }).inspectErr([](const std::string& err) {
-            log::error("Failed to get LevelCell::loadFromLevel hook: {}", err);
-        });
+        }
     }
 
     void loadFromLevel(GJGameLevel* level) {

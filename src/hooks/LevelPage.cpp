@@ -6,6 +6,10 @@
 using namespace geode::prelude;
 
 class $modify(DIBLevelPage, LevelPage) {
+    struct Fields {
+        CCSprite* m_demonSprite = nullptr;
+    };
+
     static void onModify(ModifyBase<ModifyDerive<DIBLevelPage, LevelPage>>& self) {
         (void)self.setHookPriorityAfterPost("LevelPage::updateDynamicPage", "firee.overchargedlevels");
     }
@@ -13,8 +17,10 @@ class $modify(DIBLevelPage, LevelPage) {
     void updateDynamicPage(GJGameLevel* level) {
         LevelPage::updateDynamicPage(level);
 
-        if (auto betweenDifficulty = m_levelDisplay->getChildByID("between-difficulty-sprite"_spr)) {
-            betweenDifficulty->removeFromParent();
+        auto f = m_fields.self();
+        if (f->m_demonSprite) {
+            f->m_demonSprite->removeFromParent();
+            f->m_demonSprite = nullptr;
             m_difficultySprite->setVisible(true);
         }
 
@@ -26,13 +32,13 @@ class $modify(DIBLevelPage, LevelPage) {
 
         auto overchargedMod = Loader::get()->getLoadedMod("firee.overchargedlevels");
         auto overcharged = overchargedMod && overchargedMod->getSettingValue<bool>("enabled");
-        auto demonSprite = CCSprite::createWithSpriteFrameName(
+        f->m_demonSprite = CCSprite::createWithSpriteFrameName(
             fmt::format("DIB_{:02d}{}_001.png"_spr, demon->difficulty, overcharged ? "_btn" : "").c_str());
-        demonSprite->setPosition(m_difficultySprite->getPosition() +
+        f->m_demonSprite->setPosition(m_difficultySprite->getPosition() +
             (overcharged ? DemonsInBetween::offsetForDifficulty(demon->difficulty, GJDifficultyName::Short) * 0.9f : CCPoint { 0.0f, 0.0f }));
-        demonSprite->setScale(1.1f - overcharged * 0.2f);
-        demonSprite->setID("between-difficulty-sprite"_spr);
-        m_levelDisplay->addChild(demonSprite);
+        f->m_demonSprite->setScale(1.1f - overcharged * 0.2f);
+        f->m_demonSprite->setID("between-difficulty-sprite"_spr);
+        m_levelDisplay->addChild(f->m_demonSprite);
         m_difficultySprite->setVisible(false);
     }
 };

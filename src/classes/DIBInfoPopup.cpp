@@ -1,12 +1,13 @@
 #include "DIBInfoPopup.hpp"
 #include <Geode/binding/ButtonSprite.hpp>
 #include <Geode/binding/GameToolbox.hpp>
+#include <Geode/loader/Mod.hpp>
 
 using namespace geode::prelude;
 
-DIBInfoPopup* DIBInfoPopup::create(DemonBreakdown breakdown) {
+DIBInfoPopup* DIBInfoPopup::create(const DemonBreakdown& breakdown) {
     auto ret = new DIBInfoPopup();
-    if (ret->initAnchored(380.0f, 210.0f, std::move(breakdown), "GJ_square02.png")) {
+    if (ret->initAnchored(380.0f, 210.0f, breakdown, "GJ_square02.png")) {
         ret->autorelease();
         return ret;
     }
@@ -14,7 +15,7 @@ DIBInfoPopup* DIBInfoPopup::create(DemonBreakdown breakdown) {
     return nullptr;
 }
 
-bool DIBInfoPopup::setup(DemonBreakdown breakdown) {
+bool DIBInfoPopup::setup(const DemonBreakdown& breakdown) {
     setID("DIBInfoPopup");
     m_mainLayer->setID("main-layer");
     m_buttonMenu->setID("button-menu");
@@ -56,8 +57,8 @@ bool DIBInfoPopup::setup(DemonBreakdown breakdown) {
         m_demonPlatformerLabels->addObject(platformerLabel);
     }
 
-    m_completionCountClassic = std::move(breakdown.classic);
-    m_completionCountPlatformer = std::move(breakdown.platformer);
+    m_completionCountClassic = breakdown.classic;
+    m_completionCountPlatformer = breakdown.platformer;
 
     auto classicLabel = CCLabelBMFont::create(fmt::format("Classic: {}", m_completionCountClassic[0]).c_str(), "goldFont.fnt");
     classicLabel->setScale(0.7f);
@@ -131,7 +132,7 @@ void DIBInfoPopup::loadPage(int page) {
     for (int i = 0; i < 5; i++) {
         auto difficulty = m_page * 5 + i + 1;
         auto demonSprite = static_cast<CCSprite*>(m_demonSprites->objectAtIndex(i));
-        demonSprite->setDisplayFrame(sfc->spriteFrameByName(fmt::format(GEODE_MOD_ID "/DIB_{:02d}_btn2_001.png", difficulty).c_str()));
+        demonSprite->setDisplayFrame(sfc->spriteFrameByName(fmt::format("DIB_{:02d}_btn2_001.png"_spr, difficulty).c_str()));
         demonSprite->setPosition(DemonsInBetween::offsetForDifficulty(difficulty, GJDifficultyName::Long) + CCPoint { 50.0f + i * 70.0f, 140.0f });
         static_cast<CCLabelBMFont*>(m_demonClassicLabels->objectAtIndex(i))->setString(
             fmt::to_string(m_completionCountClassic[difficulty]).c_str());

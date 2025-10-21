@@ -10,11 +10,17 @@
 
 using namespace geode::prelude;
 
-#define GDDL_URL "https://docs.google.com/spreadsheets/d/1qKlWKpDkOpU1ZF6V6xGfutDY2NvcA8MNPnsv6GBkKPQ/gviz/tq?tqx=out:csv&sheet=GDDL"
+std::map<int, LadderDemon> DemonsInBetween::gddl;
+std::map<int, std::vector<std::string>> DemonsInBetween::gddlDifficulties = {
+    { 1, {} }, { 2, {} }, { 3, {} }, { 4, {} }, { 5, {} }, { 6, {} }, { 7, {} }, { 8, {} }, { 9, {} }, { 10, {} },
+    { 11, {} }, { 12, {} }, { 13, {} }, { 14, {} }, { 15, {} }, { 16, {} }, { 17, {} }, { 18, {} }, { 19, {} }, { 20, {} }
+};
+
+constexpr const char* url = "https://docs.google.com/spreadsheets/d/1qKlWKpDkOpU1ZF6V6xGfutDY2NvcA8MNPnsv6GBkKPQ/gviz/tq?tqx=out:csv&sheet=GDDL";
 
 $execute {
     new EventListener(+[](GameEvent*) {
-        web::WebRequest().get(GDDL_URL).listen([](web::WebResponse* res) {
+        web::WebRequest().get(url).listen([](web::WebResponse* res) {
             if (!res->ok()) return;
 
             constexpr std::array difficulties = {
@@ -23,65 +29,60 @@ $execute {
             };
             constexpr std::array mainLevels = { 0, 14, 18, 20 };
 
-            auto lines = string::split(res->string().unwrapOrDefault(), "\n");
+            auto lines = string::split(std::string(std::from_range, res->data()), "\n");
             auto& header = lines[0];
             auto keys = string::split(header.substr(1, header.size() - 2), "\",\"");
             for (auto& line : lines | std::views::drop(1)) {
                 auto values = string::split(line.substr(1, line.size() - 2), "\",\"");
-                auto& demon = DemonsInBetween::gddl.emplace_back();
+                LadderDemon demon;
                 for (size_t j = 0; j < keys.size() && j < values.size(); j++) {
                     auto& key = keys[j];
                     auto& value = values[j];
                     if (key == "ID") {
                         std::from_chars(value.data(), value.data() + value.size(), demon.id);
                         if (demon.id < mainLevels.size()) demon.id = mainLevels[demon.id];
-                        if (demon.id < 1) {
-                            DemonsInBetween::gddl.pop_back();
-                            break;
-                        }
+                        if (demon.id < 1) break;
                     }
                     else if (key == "Tier") {
                         #ifdef __cpp_lib_to_chars
                         std::from_chars(value.data(), value.data() + value.size(), demon.tier);
                         #else
-                        GEODE_UNWRAP_INTO_IF_OK(demon.tier, numFromString<double>(value));
+                        if (auto num = numFromString<double>(value).ok()) demon.tier = *num;
                         #endif
                         int roundedTier = round(demon.tier);
                         demon.difficulty = roundedTier < difficulties.size() ? difficulties[roundedTier] : 0;
                         if (demon.difficulty > 0) DemonsInBetween::gddlDifficulties[demon.difficulty].push_back(fmt::to_string(demon.id));
-                        else {
-                            DemonsInBetween::gddl.pop_back();
-                            break;
-                        }
+                        else break;
                     }
                     else if (key == "Enjoyment") {
                         #ifdef __cpp_lib_to_chars
                         std::from_chars(value.data(), value.data() + value.size(), demon.enjoyment);
                         #else
-                        GEODE_UNWRAP_INTO_IF_OK(demon.enjoyment, numFromString<double>(value));
+                        if (auto num = numFromString<double>(value).ok()) demon.enjoyment = *num;
                         #endif
                     }
                 }
+                if (demon.id > 0 && demon.difficulty > 0) DemonsInBetween::gddl.emplace(demon.id, demon);
             }
         });
     }, GameEventFilter(GameEventType::Loaded));
 }
 
 LadderDemon* DemonsInBetween::demonForLevel(int levelID) {
-    auto demon = std::ranges::find_if(gddl, [levelID](const LadderDemon& d) { return d.id == levelID; });
-    return demon != gddl.end() ? std::to_address(demon) : nullptr;
+    auto demon = gddl.find(levelID);
+    return demon != gddl.end() ? &demon->second : nullptr;
 }
 
 CCPoint DemonsInBetween::offsetForDifficulty(int difficulty, GJDifficultyName name) {
-    constexpr std::array<cocos2d::CCPoint, 21> longOffsets = {
-        cocos2d::CCPoint { 0.0f, 0.0f },
+    constexpr std::array<CCPoint, 21> longOffsets = {
+        CCPoint { 0.0f, 0.0f },
         { 0.0f, -5.0f }, { 0.125f, -5.0f }, { 0.0f, -5.0f }, { 0.0f, -5.125f }, { 0.25f, -5.0f },
         { 0.125f, -4.75f }, { 0.0f, -5.0f }, { 0.0f, -4.125f }, { -0.125f, -4.125f }, { 0.0f, -4.0f },
         { -0.125f, -4.125f }, { 0.0f, -4.125f }, { 0.125f, -4.125f }, { 0.0f, -4.125f }, { 0.0f, -4.125f },
         { 0.0f, -3.625f }, { 0.0f, -3.625f }, { 0.0f, -3.5f }, { 0.0f, -3.5f }, { 0.0f, -3.5f }
     };
-    constexpr std::array<cocos2d::CCPoint, 21> shortOffsets = {
-        cocos2d::CCPoint { 0.0f, 0.0f },
+    constexpr std::array<CCPoint, 21> shortOffsets = {
+        CCPoint { 0.0f, 0.0f },
         { -0.125f, -0.25f }, { -0.125f, -0.25f }, { -0.125f, -0.25f }, { -0.125f, -0.375f }, { -0.125f, -0.25f },
         { -0.125f, -0.25f }, { -0.125f, -0.375f }, { -0.125f, 0.5f }, { -0.125f, 0.5f }, { -0.125f, 0.25f },
         { -0.125f, 0.5f }, { 0.125f, 0.5f }, { 0.125f, 0.5f }, { 0.125f, 0.5f }, { 0.0f, 0.5f },
@@ -122,18 +123,17 @@ GJSearchObject* DemonsInBetween::searchObjectForPage(int difficulty, int page) {
     #else
     auto& searchQuery = searchObject->m_searchQuery;
     #endif
-    for (auto& id : std::ranges::subrange(levels.begin() + page * 10, levels.begin() + std::min<int>(levels.size(), (page + 1) * 10))) {
+    auto end = std::min(levels.end(), levels.begin() + (page + 1) * 10);
+    for (auto it = levels.begin() + page * 10; it != end; ++it) {
         if (!searchQuery.empty()) searchQuery += ',';
-        searchQuery += id;
+        searchQuery += *it;
     }
-    #ifdef GEODE_IS_ANDROID
-    searchObject->m_searchQuery = searchQuery;
-    #endif
+    GEODE_ANDROID(searchObject->m_searchQuery = searchQuery;)
     return searchObject;
 }
 
 DemonBreakdown DemonsInBetween::createBreakdown() {
-    DemonBreakdown breakdown = { std::vector<int>(21, 0), std::vector<int>(21, 0), 0, 0, 0 };
+    DemonBreakdown breakdown;
 
     auto glm = GameLevelManager::get();
     auto gsm = GameStatsManager::get();

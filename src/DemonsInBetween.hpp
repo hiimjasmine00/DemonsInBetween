@@ -1,7 +1,7 @@
 #include <cocos2d.h>
 #include <Geode/Enums.hpp>
 #include <Geode/GeneratedPredeclare.hpp>
-#include <matjson/std.hpp>
+#include <matjson.hpp>
 
 struct LadderDemon {
     int id = 0;
@@ -11,11 +11,35 @@ struct LadderDemon {
 };
 
 struct DemonBreakdown {
-    std::vector<int> classic;
-    std::vector<int> platformer;
+    std::array<int, 21> classic = {};
+    std::array<int, 21> platformer = {};
     int weekly = 0;
     int event = 0;
     int gauntlet = 0;
+};
+
+template <class T, size_t N>
+struct matjson::Serialize<std::array<T, N>> {
+    static geode::Result<std::array<T, N>> fromJson(const matjson::Value& value) {
+        if (!value.isArray()) return geode::Err("Expected array");
+        std::array<T, N> arr;
+        for (size_t i = 0; i < N; i++) {
+            if (i < value.size()) {
+                GEODE_UNWRAP_INTO(arr[i], value[i].as<T>());
+            }
+            else arr[i] = 0;
+        }
+        return geode::Ok(arr);
+    }
+
+    static matjson::Value toJson(const std::array<T, N>& arr) {
+        std::vector<matjson::Value> vec;
+        vec.reserve(arr.size());
+        for (auto& v : arr) {
+            vec.push_back(v);
+        }
+        return vec;
+    }
 };
 
 template <>
@@ -23,12 +47,12 @@ struct matjson::Serialize<DemonBreakdown> {
     static geode::Result<DemonBreakdown> fromJson(const matjson::Value& value) {
         if (!value.isObject()) return geode::Err("Expected object");
         DemonBreakdown breakdown;
-        GEODE_UNWRAP_INTO_IF_OK(breakdown.classic, value.get("classic").andThen([](const matjson::Value& v) { return v.as<std::vector<int>>(); }));
-        GEODE_UNWRAP_INTO_IF_OK(breakdown.platformer, value.get("platformer").andThen([](const matjson::Value& v) { return v.as<std::vector<int>>(); }));
-        GEODE_UNWRAP_INTO_IF_OK(breakdown.weekly, value.get("weekly").andThen([](const matjson::Value& v) { return v.asInt(); }));
-        GEODE_UNWRAP_INTO_IF_OK(breakdown.event, value.get("event").andThen([](const matjson::Value& v) { return v.asInt(); }));
-        GEODE_UNWRAP_INTO_IF_OK(breakdown.gauntlet, value.get("gauntlet").andThen([](const matjson::Value& v) { return v.asInt(); }));
-        return geode::Ok(std::move(breakdown));
+        if (auto classic = value.get<std::array<int, 21>>("classic").ok()) breakdown.classic = *classic;
+        if (auto platformer = value.get<std::array<int, 21>>("platformer").ok()) breakdown.platformer = *platformer;
+        if (auto weekly = value.get<int>("weekly").ok()) breakdown.weekly = *weekly;
+        if (auto event = value.get<int>("event").ok()) breakdown.event = *event;
+        if (auto gauntlet = value.get<int>("gauntlet").ok()) breakdown.gauntlet = *gauntlet;
+        return geode::Ok(breakdown);
     }
 
     static matjson::Value toJson(const DemonBreakdown& breakdown) {
@@ -44,11 +68,8 @@ struct matjson::Serialize<DemonBreakdown> {
 
 class DemonsInBetween {
 public:
-    inline static std::vector<LadderDemon> gddl = {};
-    inline static std::map<int, std::vector<std::string>> gddlDifficulties = {
-        { 1, {} }, { 2, {} }, { 3, {} }, { 4, {} }, { 5, {} }, { 6, {} }, { 7, {} }, { 8, {} }, { 9, {} }, { 10, {} },
-        { 11, {} }, { 12, {} }, { 13, {} }, { 14, {} }, { 15, {} }, { 16, {} }, { 17, {} }, { 18, {} }, { 19, {} }, { 20, {} }
-    };
+    static std::map<int, LadderDemon> gddl;
+    static std::map<int, std::vector<std::string>> gddlDifficulties;
 
     static LadderDemon* demonForLevel(int);
     static cocos2d::CCPoint offsetForDifficulty(int, GJDifficultyName);

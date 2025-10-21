@@ -1,4 +1,7 @@
 # Demons In Between Changelog
+## v1.5.1 (2025-10-21)
+- Fixed a bug where the demon breakdown upload would fail
+
 ## v1.5.0 (2025-08-28)
 - Added the ability to upload demon breakdowns via the "User Data API" mod
 

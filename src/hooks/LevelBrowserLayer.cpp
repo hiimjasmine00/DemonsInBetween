@@ -6,10 +6,10 @@
 using namespace geode::prelude;
 class $modify(DIBLevelBrowserLayer, LevelBrowserLayer) {
     struct Fields {
-        int m_difficulty;
-        int m_searchSize;
-        int m_maxPage;
-        int m_currentPage;
+        int m_difficulty = 0;
+        int m_searchSize = 0;
+        int m_maxPage = 0;
+        int m_currentPage = 0;
     };
 
     static void onModify(ModifyBase<ModifyDerive<DIBLevelBrowserLayer, LevelBrowserLayer>>& self) {
@@ -24,14 +24,17 @@ class $modify(DIBLevelBrowserLayer, LevelBrowserLayer) {
         if (m_fields->m_difficulty <= 0) return true;
 
         if (auto pageMenu = getChildByID("page-menu")) {
-            if (auto randomButton = static_cast<CCMenuItem*>(pageMenu->getChildByID("cvolton.betterinfo/random-button")))
+            if (auto randomButton = static_cast<CCMenuItem*>(pageMenu->getChildByID("cvolton.betterinfo/random-button"))) {
                 randomButton->m_pfnSelector = menu_selector(DIBLevelBrowserLayer::onBetterInfoRandom);
-            if (auto lastButton = static_cast<CCMenuItem*>(pageMenu->getChildByID("cvolton.betterinfo/last-button")))
+            }
+            if (auto lastButton = static_cast<CCMenuItem*>(pageMenu->getChildByID("cvolton.betterinfo/last-button"))) {
                 lastButton->m_pfnSelector = menu_selector(DIBLevelBrowserLayer::onBetterInfoLast);
+            }
         }
         if (auto searchMenu = getChildByID("search-menu")) {
-            if (auto firstButton = static_cast<CCMenuItem*>(searchMenu->getChildByID("cvolton.betterinfo/first-button")))
+            if (auto firstButton = static_cast<CCMenuItem*>(searchMenu->getChildByID("cvolton.betterinfo/first-button"))) {
                 firstButton->m_pfnSelector = menu_selector(DIBLevelBrowserLayer::onBetterInfoFirst);
+            }
         }
 
         updatePageButtons();
@@ -72,14 +75,17 @@ class $modify(DIBLevelBrowserLayer, LevelBrowserLayer) {
         if (m_refreshBtn) m_refreshBtn->setVisible(false);
 
         if (auto pageMenu = getChildByID("page-menu")) {
-            if (auto randomButton = pageMenu->getChildByID("cvolton.betterinfo/random-button"))
+            if (auto randomButton = pageMenu->getChildByID("cvolton.betterinfo/random-button")) {
                 randomButton->setVisible(f->m_maxPage > 10);
-            if (auto lastButton = pageMenu->getChildByID("cvolton.betterinfo/last-button"))
+            }
+            if (auto lastButton = pageMenu->getChildByID("cvolton.betterinfo/last-button")) {
                 lastButton->setVisible(f->m_currentPage < f->m_maxPage);
+            }
         }
         if (auto searchMenu = getChildByID("search-menu")) {
-            if (auto firstButton = searchMenu->getChildByID("cvolton.betterinfo/first-button"))
+            if (auto firstButton = searchMenu->getChildByID("cvolton.betterinfo/first-button")) {
                 firstButton->setVisible(f->m_currentPage > 0);
+            }
         }
     }
 
@@ -161,12 +167,14 @@ class $modify(DIBLevelBrowserLayer, LevelBrowserLayer) {
 
         switch (key) {
             case KEY_Left: case CONTROLLER_Left:
-                if (m_leftArrow && m_leftArrow->isVisible() && m_leftArrow->isEnabled())
+                if (m_leftArrow && m_leftArrow->isVisible() && m_leftArrow->isEnabled()) {
                     loadPage(DemonsInBetween::searchObjectForPage(f->m_difficulty, --f->m_currentPage));
+                }
                 break;
             case KEY_Right: case CONTROLLER_Right:
-                if (m_rightArrow && m_rightArrow->isVisible() && m_rightArrow->isEnabled())
+                if (m_rightArrow && m_rightArrow->isVisible() && m_rightArrow->isEnabled()) {
                     loadPage(DemonsInBetween::searchObjectForPage(f->m_difficulty, ++f->m_currentPage));
+                }
                 break;
             default:
                 break;
