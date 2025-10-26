@@ -173,16 +173,13 @@ DemonBreakdown DemonsInBetween::createBreakdown() {
 
 template <class T, size_t N>
 struct matjson::Serialize<std::array<T, N>> {
-    static geode::Result<std::array<T, N>> fromJson(const matjson::Value& value) {
-        if (!value.isArray()) return geode::Err("Expected array");
-        std::array<T, N> arr;
-        for (size_t i = 0; i < N; i++) {
-            if (i < value.size()) {
-                GEODE_UNWRAP_INTO(arr[i], value[i].as<T>());
-            }
-            else arr[i] = 0;
+    static Result<std::array<T, N>> fromJson(const matjson::Value& value) {
+        if (!value.isArray()) return Err("not an array");
+        std::array<T, N> arr{};
+        for (size_t i = 0; i < N && i < value.size(); i++) {
+            GEODE_UNWRAP_INTO(arr[i], value[i].as<T>());
         }
-        return geode::Ok(arr);
+        return Ok(arr);
     }
 
     static matjson::Value toJson(const std::array<T, N>& arr) {
