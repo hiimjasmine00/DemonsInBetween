@@ -1,4 +1,7 @@
 # Demons In Between Changelog
+## v1.5.2 (2025-10-27)
+- Fixed a bug where the demon breakdown would not count main levels (Reported by [BoiledGold](user:33943442))
+
 ## v1.5.1 (2025-10-21)
 - Fixed a bug where the demon breakdown upload would fail
 

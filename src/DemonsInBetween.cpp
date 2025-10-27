@@ -137,14 +137,24 @@ DemonBreakdown DemonsInBetween::createBreakdown() {
 
     auto glm = GameLevelManager::get();
     auto gsm = GameStatsManager::get();
+
+    constexpr std::array mainDemons = { 14, 18, 20 };
+    for (auto levelID : mainDemons) {
+        if (!gsm->hasCompletedMainLevel(levelID)) continue;
+        breakdown.classic[0]++;
+        auto demon = DemonsInBetween::demonForLevel(levelID);
+        breakdown.classic[demon ? demon->difficulty : 4]++;
+    }
+
     for (auto [_, level] : CCDictionaryExt<std::string, GJGameLevel*>(glm->m_onlineLevels)) {
         if (level->m_stars.value() < 10 || level->m_normalPercent.value() < 100 || !gsm->hasCompletedLevel(level)) continue;
 
         auto& completionCount = level->m_levelLength == 5 ? breakdown.platformer : breakdown.classic;
         completionCount[0]++;
 
-        auto demon = DemonsInBetween::demonForLevel(level->m_levelID.value());
-        if (demon) completionCount[demon->difficulty]++;
+        if (auto demon = DemonsInBetween::demonForLevel(level->m_levelID.value())) {
+            completionCount[demon->difficulty]++;
+        }
         else {
             switch (level->m_demonDifficulty) {
                 case 3: completionCount[4]++; break;

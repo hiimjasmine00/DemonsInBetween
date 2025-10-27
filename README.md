@@ -7,17 +7,21 @@ Expanded demon difficulties.
 - A demon info button in the level info page, which includes a button to refresh the demon difficulty of the level
 
 ## Credits
-- [SufficientEbb](https://gdbrowser.com/u/20865884) - Idea for the mod
-- [HexCodes](https://gdbrowser.com/u/16858187) - Additional ideas for the mod
+- [SufficientEbbRe](https://gdbrowser.com/u/20865884) - Idea for the mod
+- [fardcoin](https://gdbrowser.com/u/16858187) - Additional ideas for the mod
 - [Krintop](https://gdbrowser.com/u/7242014) - Designer of the mod textures
 - [hiimjasmine00](https://gdbrowser.com/u/7466002) - Creator of the mod
 
 ## Gallery
-![Quick Search](./resources/quicksearch.png)\
-![Demon Info 1](./resources/demon-info-1.png)\
-![Demon Info 2](./resources/demon-info-2.png)\
-![Demon Info 3](./resources/demon-info-3.png)\
-![Demon Info 4](./resources/demon-info-4.png)
+![Quick Search](https://raw.githubusercontent.com/hiimjasmine00/DemonsInBetween/refs/heads/master/resources/quicksearch.png)
+
+![Demon Info 1](https://raw.githubusercontent.com/hiimjasmine00/DemonsInBetween/refs/heads/master/resources/demon-info-1.png)
+
+![Demon Info 2](https://raw.githubusercontent.com/hiimjasmine00/DemonsInBetween/refs/heads/master/resources/demon-info-2.png)
+
+![Demon Info 3](https://raw.githubusercontent.com/hiimjasmine00/DemonsInBetween/refs/heads/master/resources/demon-info-3.png)
+
+![Demon Info 4](https://raw.githubusercontent.com/hiimjasmine00/DemonsInBetween/refs/heads/master/resources/demon-info-4.png)
 
 ## Difficulties
 - Free Demon (Tier 1)
