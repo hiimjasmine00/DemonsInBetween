@@ -4,6 +4,7 @@
 #include <Geode/modify/LevelInfoLayer.hpp>
 #include <Geode/ui/BasedButtonSprite.hpp>
 #include <Geode/ui/Popup.hpp>
+#include <jasmine/setting.hpp>
 
 using namespace geode::prelude;
 
@@ -29,10 +30,10 @@ class $modify(DIBLevelInfoLayer, LevelInfoLayer) {
 
         auto createDemon = true;
 
-        if (getChildByID("grd-difficulty") || !Mod::get()->getSettingValue<bool>("enable-difficulties")) createDemon = false;
+        if (getChildByID("grd-difficulty") || !jasmine::setting::getValue<bool>("enable-difficulties")) createDemon = false;
 
         auto gddpDifficulty = getChildByID("gddp-difficulty");
-        if (gddpDifficulty && !Mod::get()->getSettingValue<bool>("gddp-integration-override")) createDemon = false;
+        if (gddpDifficulty && !jasmine::setting::getValue<bool>("gddp-integration-override")) createDemon = false;
         else if (gddpDifficulty) gddpDifficulty->setVisible(false);
 
         auto levelID = level->m_levelID.value();

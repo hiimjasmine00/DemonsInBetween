@@ -1,7 +1,7 @@
 #include "../DemonsInBetween.hpp"
 #include <Geode/binding/SetIDPopup.hpp>
 #include <Geode/modify/LevelBrowserLayer.hpp>
-#include <random>
+#include <jasmine/random.hpp>
 
 using namespace geode::prelude;
 class $modify(DIBLevelBrowserLayer, LevelBrowserLayer) {
@@ -46,9 +46,7 @@ class $modify(DIBLevelBrowserLayer, LevelBrowserLayer) {
         auto f = m_fields.self();
         if (f->m_difficulty <= 0) return;
 
-        static std::mt19937 mt(std::random_device{}());
-
-        loadPage(DemonsInBetween::searchObjectForPage(f->m_difficulty, f->m_currentPage = std::uniform_int_distribution<int>(0, f->m_maxPage)(mt)));
+        loadPage(DemonsInBetween::searchObjectForPage(f->m_difficulty, f->m_currentPage = jasmine::random::getInt(0, f->m_maxPage)));
     }
 
     void onBetterInfoLast(CCObject* sender) {

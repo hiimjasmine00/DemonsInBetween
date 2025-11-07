@@ -2,6 +2,8 @@
 #include <Geode/binding/GJDifficultySprite.hpp>
 #include <Geode/binding/GJGameLevel.hpp>
 #include <Geode/modify/LevelCell.hpp>
+#include <jasmine/hook.hpp>
+#include <jasmine/setting.hpp>
 
 using namespace geode::prelude;
 
@@ -9,18 +11,7 @@ class $modify(DIBLevelCell, LevelCell) {
     static void onModify(ModifyBase<ModifyDerive<DIBLevelCell, LevelCell>>& self) {
         (void)self.setHookPriorityAfterPost("LevelCell::loadFromLevel", "itzkiba.grandpa_demon");
         (void)self.setHookPriorityAfterPost("LevelCell::loadFromLevel", "minemaker0430.gddp_integration");
-
-        if (auto it = self.m_hooks.find("LevelCell::loadFromLevel"); it != self.m_hooks.end()) {
-            auto hook = it->second.get();
-            auto mod = Mod::get();
-            hook->setAutoEnable(mod->getSettingValue<bool>("enable-difficulties"));
-
-            listenForSettingChangesV3<bool>("enable-difficulties", [hook](bool value) {
-                if (auto err = hook->toggle(value).err()) {
-                    log::error("Failed to toggle LevelCell::loadFromLevel hook: {}", *err);
-                }
-            }, mod);
-        }
+        jasmine::hook::modify(self.m_hooks, "LevelCell::loadFromLevel", "enable-difficulties");
     }
 
     void loadFromLevel(GJGameLevel* level) {
@@ -36,7 +27,7 @@ class $modify(DIBLevelCell, LevelCell) {
         if (!difficultySprite || !difficultySprite->isVisible()) return; // If invisible, we're just going to assume it's Grandpa Demon
 
         auto gddpDifficulty = difficultyContainer->getChildByID("gddp-difficulty");
-        if (gddpDifficulty && !Mod::get()->getSettingValue<bool>("gddp-integration-override")) return;
+        if (gddpDifficulty && !jasmine::setting::getValue<bool>("gddp-integration-override")) return;
         else if (gddpDifficulty) gddpDifficulty->setVisible(false);
 
         if (auto demon = DemonsInBetween::demonForLevel(level->m_levelID.value())) {

@@ -2,34 +2,31 @@
 #include <Geode/modify/GameLevelManager.hpp>
 #define USER_DATA_API_EVENTS
 #include <hiimjasmine00.user_data_api/include/UserDataAPI.hpp>
+#include <jasmine/hook.hpp>
+#include <jasmine/setting.hpp>
 
 using namespace geode::prelude;
 
 class $modify(DIBGameLevelManager, GameLevelManager) {
     static void onModify(ModifyBase<ModifyDerive<DIBGameLevelManager, GameLevelManager>>& self) {
-        if (auto it = self.m_hooks.find("GameLevelManager::updateUserScore"); it != self.m_hooks.end()) {
-            auto hook = it->second.get();
-            auto mod = Mod::get();
-            hook->setAutoEnable(mod->getSettingValue<bool>("enable-demon-breakdown") && mod->getSettingValue<bool>("send-demon-breakdown"));
-
-            listenForAllSettingChangesV3([hook](std::shared_ptr<SettingV3> setting) {
+        auto hook = jasmine::hook::get(self.m_hooks, "GameLevelManager::updateUserScore",
+            jasmine::setting::getValue<bool>("enable-demon-breakdown") && jasmine::setting::getValue<bool>("send-demon-breakdown"));
+        if (hook) {
+            new EventListener([hook](std::shared_ptr<SettingV3> setting) {
                 auto key = setting->getKey();
                 auto isEnable = key == "enable-demon-breakdown";
                 auto isSend = key == "send-demon-breakdown";
                 if (!isEnable && !isSend) return;
 
-                auto mod = Mod::get();
                 auto enableDemonBreakdown = isEnable
                     ? std::static_pointer_cast<BoolSettingV3>(std::move(setting))->getValue()
-                    : mod->getSettingValue<bool>("enable-demon-breakdown");
+                    : jasmine::setting::getValue<bool>("enable-demon-breakdown");
                 auto sendDemonBreakdown = isSend
                     ? std::static_pointer_cast<BoolSettingV3>(std::move(setting))->getValue()
-                    : mod->getSettingValue<bool>("send-demon-breakdown");
+                    : jasmine::setting::getValue<bool>("send-demon-breakdown");
 
-                if (auto err = hook->toggle(enableDemonBreakdown && sendDemonBreakdown).err()) {
-                    log::error("Failed to toggle GameLevelManager::updateUserScore hook: {}", *err);
-                }
-            }, mod);
+                jasmine::hook::toggle(hook, enableDemonBreakdown && sendDemonBreakdown);
+            }, SettingChangedFilterV3(GEODE_MOD_ID, std::nullopt));
         }
     }
 

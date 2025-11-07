@@ -2,10 +2,13 @@
 #include <Geode/binding/GameLevelManager.hpp>
 #include <Geode/binding/GameStatsManager.hpp>
 #include <Geode/binding/GJGameLevel.hpp>
-#include <Geode/binding/GJSearchObject.hpp>
 #include <Geode/loader/GameEvent.hpp>
 #include <Geode/loader/Mod.hpp>
-#include <Geode/utils/web.hpp>
+#include <jasmine/convert.hpp>
+#include <jasmine/search.hpp>
+#include <jasmine/setting.hpp>
+#include <jasmine/string.hpp>
+#include <jasmine/web.hpp>
 #include <ranges>
 
 using namespace geode::prelude;
@@ -29,37 +32,29 @@ $execute {
             };
             constexpr std::array mainLevels = { 0, 14, 18, 20 };
 
-            auto lines = string::split(std::string(std::from_range, res->data()), "\n");
-            auto& header = lines[0];
-            auto keys = string::split(header.substr(1, header.size() - 2), "\",\"");
-            for (auto& line : lines | std::views::drop(1)) {
-                auto values = string::split(line.substr(1, line.size() - 2), "\",\"");
+            auto lines = jasmine::string::split(jasmine::web::getString(res), '\n');
+            auto header = lines[0];
+            auto keys = jasmine::string::split(header.substr(1, header.size() - 2), "\",\"");
+            for (auto line : std::views::drop(lines, 1)) {
+                auto values = jasmine::string::split(line.substr(1, line.size() - 2), "\",\"");
                 LadderDemon demon;
                 for (size_t j = 0; j < keys.size() && j < values.size(); j++) {
-                    auto& key = keys[j];
-                    auto& value = values[j];
+                    auto key = keys[j];
+                    auto value = values[j];
                     if (key == "ID") {
-                        std::from_chars(value.data(), value.data() + value.size(), demon.id);
+                        jasmine::convert::toInt(value, demon.id);
                         if (demon.id < mainLevels.size()) demon.id = mainLevels[demon.id];
                         if (demon.id < 1) break;
                     }
                     else if (key == "Tier") {
-                        #ifdef __cpp_lib_to_chars
-                        std::from_chars(value.data(), value.data() + value.size(), demon.tier);
-                        #else
-                        if (auto num = numFromString<double>(value).ok()) demon.tier = *num;
-                        #endif
+                        jasmine::convert::toFloat(value, demon.tier);
                         int roundedTier = round(demon.tier);
                         demon.difficulty = roundedTier < difficulties.size() ? difficulties[roundedTier] : 0;
                         if (demon.difficulty > 0) DemonsInBetween::gddlDifficulties[demon.difficulty].push_back(fmt::to_string(demon.id));
                         else break;
                     }
                     else if (key == "Enjoyment") {
-                        #ifdef __cpp_lib_to_chars
-                        std::from_chars(value.data(), value.data() + value.size(), demon.enjoyment);
-                        #else
-                        if (auto num = numFromString<double>(value).ok()) demon.enjoyment = *num;
-                        #endif
+                        jasmine::convert::toFloat(value, demon.enjoyment);
                     }
                 }
                 if (demon.id > 0 && demon.difficulty > 0) DemonsInBetween::gddl.emplace(demon.id, demon);
@@ -107,9 +102,8 @@ CCSprite* DemonsInBetween::spriteForDifficulty(const CCPoint& position, int diff
 
 GJFeatureState DemonsInBetween::stateForLevel(GJGameLevel* level) {
     auto state = level->m_featured ? (GJFeatureState)(level->m_isEpic + 1) : GJFeatureState::None;
-    auto mod = Mod::get();
-    if (state == GJFeatureState::Legendary && !mod->getSettingValue<bool>("enable-legendary")) state = GJFeatureState::None;
-    else if (state == GJFeatureState::Mythic && !mod->getSettingValue<bool>("enable-mythic")) state = GJFeatureState::None;
+    if (state == GJFeatureState::Legendary && !jasmine::setting::getValue<bool>("enable-legendary")) state = GJFeatureState::None;
+    else if (state == GJFeatureState::Mythic && !jasmine::setting::getValue<bool>("enable-mythic")) state = GJFeatureState::None;
     return state;
 }
 
@@ -117,19 +111,7 @@ GJSearchObject* DemonsInBetween::searchObjectForPage(int difficulty, int page) {
     if (difficulty <= 0) return nullptr;
 
     auto& levels = gddlDifficulties[difficulty];
-    auto searchObject = GJSearchObject::create(SearchType::MapPackOnClick);
-    #ifdef GEODE_IS_ANDROID
-    std::string searchQuery = searchObject->m_searchQuery;
-    #else
-    auto& searchQuery = searchObject->m_searchQuery;
-    #endif
-    auto end = std::min(levels.end(), levels.begin() + (page + 1) * 10);
-    for (auto it = levels.begin() + page * 10; it != end; ++it) {
-        if (!searchQuery.empty()) searchQuery += ',';
-        searchQuery += *it;
-    }
-    GEODE_ANDROID(searchObject->m_searchQuery = searchQuery;)
-    return searchObject;
+    return jasmine::search::getObject(levels.begin() + page * 10, std::min(levels.end(), levels.begin() + (page + 1) * 10));
 }
 
 DemonBreakdown DemonsInBetween::createBreakdown() {
@@ -149,7 +131,7 @@ DemonBreakdown DemonsInBetween::createBreakdown() {
     for (auto [_, level] : CCDictionaryExt<std::string, GJGameLevel*>(glm->m_onlineLevels)) {
         if (level->m_stars.value() < 10 || level->m_normalPercent.value() < 100 || !gsm->hasCompletedLevel(level)) continue;
 
-        auto& completionCount = level->m_levelLength == 5 ? breakdown.platformer : breakdown.classic;
+        auto& completionCount = level->isPlatformer() ? breakdown.platformer : breakdown.classic;
         completionCount[0]++;
 
         if (auto demon = DemonsInBetween::demonForLevel(level->m_levelID.value())) {
@@ -166,17 +148,9 @@ DemonBreakdown DemonsInBetween::createBreakdown() {
         }
     }
 
-    for (auto [_, level] : CCDictionaryExt<std::string, GJGameLevel*>(glm->m_dailyLevels)) {
-        if (level->m_stars.value() < 10 || level->m_normalPercent.value() < 100 || !gsm->hasCompletedLevel(level)) continue;
-        auto dailyID = level->m_dailyID.value();
-        if (dailyID > 200000) breakdown.event++;
-        else if (dailyID > 100000) breakdown.weekly++;
-    }
-
-    for (auto [_, level] : CCDictionaryExt<std::string, GJGameLevel*>(glm->m_gauntletLevels)) {
-        if (level->m_stars.value() < 10 || level->m_normalPercent.value() < 100 || !gsm->hasCompletedLevel(level)) continue;
-        breakdown.gauntlet++;
-    }
+    breakdown.weekly = glm->getCompletedWeeklyLevels();
+    breakdown.event = glm->getCompletedEventLevels(10, 10);
+    breakdown.gauntlet = glm->getCompletedGauntletDemons();
 
     return breakdown;
 }
@@ -205,11 +179,11 @@ struct matjson::Serialize<std::array<T, N>> {
 Result<DemonBreakdown> matjson::Serialize<DemonBreakdown>::fromJson(const matjson::Value& value) {
     if (!value.isObject()) return Err("Expected object");
     DemonBreakdown breakdown;
-    if (auto classic = value.get<std::array<int, 21>>("classic").ok()) breakdown.classic = *classic;
-    if (auto platformer = value.get<std::array<int, 21>>("platformer").ok()) breakdown.platformer = *platformer;
-    if (auto weekly = value.get<int>("weekly").ok()) breakdown.weekly = *weekly;
-    if (auto event = value.get<int>("event").ok()) breakdown.event = *event;
-    if (auto gauntlet = value.get<int>("gauntlet").ok()) breakdown.gauntlet = *gauntlet;
+    if (auto classic = value.get<std::array<int, 21>>("classic")) breakdown.classic = classic.unwrap();
+    if (auto platformer = value.get<std::array<int, 21>>("platformer")) breakdown.platformer = platformer.unwrap();
+    if (auto weekly = value.get<int>("weekly")) breakdown.weekly = weekly.unwrap();
+    if (auto event = value.get<int>("event")) breakdown.event = event.unwrap();
+    if (auto gauntlet = value.get<int>("gauntlet")) breakdown.gauntlet = gauntlet.unwrap();
     return Ok(breakdown);
 }
 

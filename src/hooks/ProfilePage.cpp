@@ -3,23 +3,13 @@
 #include <Geode/modify/ProfilePage.hpp>
 #define USER_DATA_API_EVENTS
 #include <hiimjasmine00.user_data_api/include/UserDataAPI.hpp>
+#include <jasmine/hook.hpp>
 
 using namespace geode::prelude;
 
 class $modify(DIBProfilePage, ProfilePage) {
     static void onModify(ModifyBase<ModifyDerive<DIBProfilePage, ProfilePage>>& self) {
-        if (auto it = self.m_hooks.find("ProfilePage::onStatInfo"); it != self.m_hooks.end()) {
-            auto hook = it->second.get();
-            auto mod = Mod::get();
-            hook->setAutoEnable(mod->getSettingValue<bool>("enable-demon-breakdown"));
-            hook->setPriority(Priority::Replace);
-
-            listenForSettingChangesV3<bool>("enable-demon-breakdown", [hook](bool value) {
-                if (auto err = hook->toggle(value).err()) {
-                    log::error("Failed to toggle ProfilePage::onStatInfo hook: {}", *err);
-                }
-            }, mod);
-        }
+        jasmine::hook::modify(self.m_hooks, "ProfilePage::onStatInfo", "enable-demon-breakdown");
     }
 
     void onStatInfo(CCObject* sender) {

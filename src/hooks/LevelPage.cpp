@@ -2,6 +2,7 @@
 #include <Geode/binding/GameStatsManager.hpp>
 #include <Geode/binding/GJGameLevel.hpp>
 #include <Geode/modify/LevelPage.hpp>
+#include <jasmine/hook.hpp>
 
 using namespace geode::prelude;
 
@@ -12,6 +13,7 @@ class $modify(DIBLevelPage, LevelPage) {
 
     static void onModify(ModifyBase<ModifyDerive<DIBLevelPage, LevelPage>>& self) {
         (void)self.setHookPriorityAfterPost("LevelPage::updateDynamicPage", "firee.overchargedlevels");
+        jasmine::hook::modify(self.m_hooks, "LevelPage::updateDynamicPage", "enable-difficulties");
     }
 
     void updateDynamicPage(GJGameLevel* level) {
