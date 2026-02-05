@@ -24,16 +24,15 @@ struct matjson::Serialize<DemonBreakdown> {
     static matjson::Value toJson(const DemonBreakdown&);
 };
 
-class DemonsInBetween {
-public:
-    static std::map<int, LadderDemon> gddl;
-    static std::map<int, std::vector<std::string>> gddlDifficulties;
+namespace DemonsInBetween {
+    extern std::map<int, LadderDemon> gddl;
+    extern std::map<int, std::vector<std::string>> gddlDifficulties;
 
-    static LadderDemon* demonForLevel(int);
-    static cocos2d::CCPoint offsetForDifficulty(int, GJDifficultyName);
-    static cocos2d::CCSprite* spriteForDifficulty(const cocos2d::CCPoint&, int, GJDifficultyName, GJFeatureState);
-    static GJFeatureState stateForLevel(GJGameLevel*);
-    static cocos2d::CCScene* browseScene(int);
-    static GJSearchObject* searchObjectForPage(int, int);
-    static DemonBreakdown createBreakdown();
-};
+    LadderDemon* demonForLevel(int);
+    cocos2d::CCPoint offsetForDifficulty(int, GJDifficultyName);
+    cocos2d::CCSprite* spriteForDifficulty(const cocos2d::CCPoint&, int, GJDifficultyName, GJFeatureState);
+    GJFeatureState stateForLevel(GJGameLevel*);
+    cocos2d::CCScene* browseScene(int);
+    GJSearchObject* searchObjectForPage(int, int);
+    DemonBreakdown createBreakdown();
+}
