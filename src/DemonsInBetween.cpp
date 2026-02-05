@@ -9,7 +9,6 @@
 #include <jasmine/setting.hpp>
 #include <jasmine/string.hpp>
 #include <jasmine/web.hpp>
-#include <ranges>
 
 using namespace geode::prelude;
 
@@ -19,12 +18,11 @@ std::map<int, std::vector<std::string>> DemonsInBetween::gddlDifficulties = {
     { 11, {} }, { 12, {} }, { 13, {} }, { 14, {} }, { 15, {} }, { 16, {} }, { 17, {} }, { 18, {} }, { 19, {} }, { 20, {} }
 };
 
-constexpr const char* url = "https://docs.google.com/spreadsheets/d/1qKlWKpDkOpU1ZF6V6xGfutDY2NvcA8MNPnsv6GBkKPQ/gviz/tq?tqx=out:csv&sheet=GDDL";
-
-$execute {
-    new EventListener(+[](GameEvent*) {
-        web::WebRequest().get(url).listen([](web::WebResponse* res) {
-            if (!res->ok()) return;
+$on_game(Loaded) {
+    spawn(
+        web::WebRequest().get("https://docs.google.com/spreadsheets/d/1qKlWKpDkOpU1ZF6V6xGfutDY2NvcA8MNPnsv6GBkKPQ/gviz/tq?tqx=out:csv&sheet=GDDL"),
+        [](web::WebResponse res) {
+            if (!res.ok()) return;
 
             constexpr std::array difficulties = {
                 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 11, 12, 13, 14, 14, 15, 15,
@@ -32,35 +30,36 @@ $execute {
             };
             constexpr std::array mainLevels = { 0, 14, 18, 20 };
 
-            auto lines = jasmine::string::split(jasmine::web::getString(res), '\n');
-            auto header = lines[0];
-            auto keys = jasmine::string::split(header.substr(1, header.size() - 2), "\",\"");
-            for (auto line : std::views::drop(lines, 1)) {
-                auto values = jasmine::string::split(line.substr(1, line.size() - 2), "\",\"");
+            auto str = jasmine::web::getString(res);
+            auto index = str.find('\n');
+            if (index == std::string::npos) index = str.size();
+            auto keys = string::splitView(std::string_view(str.data() + 1, index - 2), "\",\"");
+            for (auto line : jasmine::string::SplitCharIterator(std::string_view(str.data() + index + 1, str.size() - index - 1), '\n')) {
+                auto values = string::splitView(line.substr(1, line.size() - 2), "\",\"");
                 LadderDemon demon;
                 for (size_t j = 0; j < keys.size() && j < values.size(); j++) {
                     auto key = keys[j];
                     auto value = values[j];
                     if (key == "ID") {
-                        jasmine::convert::toInt(value, demon.id);
+                        jasmine::convert::to(value, demon.id);
                         if (demon.id < mainLevels.size()) demon.id = mainLevels[demon.id];
                         if (demon.id < 1) break;
                     }
                     else if (key == "Tier") {
-                        jasmine::convert::toFloat(value, demon.tier);
+                        jasmine::convert::to(value, demon.tier);
                         int roundedTier = round(demon.tier);
                         demon.difficulty = roundedTier < difficulties.size() ? difficulties[roundedTier] : 0;
                         if (demon.difficulty > 0) DemonsInBetween::gddlDifficulties[demon.difficulty].push_back(fmt::to_string(demon.id));
                         else break;
                     }
                     else if (key == "Enjoyment") {
-                        jasmine::convert::toFloat(value, demon.enjoyment);
+                        jasmine::convert::to(value, demon.enjoyment);
                     }
                 }
                 if (demon.id > 0 && demon.difficulty > 0) DemonsInBetween::gddl.emplace(demon.id, demon);
             }
-        });
-    }, GameEventFilter(GameEventType::Loaded));
+        }
+    );
 }
 
 LadderDemon* DemonsInBetween::demonForLevel(int levelID) {
@@ -155,32 +154,23 @@ DemonBreakdown DemonsInBetween::createBreakdown() {
     return breakdown;
 }
 
-template <class T, size_t N>
-struct matjson::Serialize<std::array<T, N>> {
-    static Result<std::array<T, N>> fromJson(const matjson::Value& value) {
+template <class T, size_t N, class Key>
+Result<std::array<T, N>> getArray(const matjson::Value& value, Key&& key) {
+    return value.get(std::forward<Key>(key)).andThen([](const matjson::Value& value) -> Result<std::array<T, N>> {
         if (!value.isArray()) return Err("not an array");
         std::array<T, N> arr{};
         for (size_t i = 0; i < N && i < value.size(); i++) {
             GEODE_UNWRAP_INTO(arr[i], value[i].as<T>());
         }
         return Ok(arr);
-    }
-
-    static matjson::Value toJson(const std::array<T, N>& arr) {
-        std::vector<matjson::Value> vec;
-        vec.reserve(N);
-        for (auto& v : arr) {
-            vec.push_back(v);
-        }
-        return vec;
-    }
-};
+    });
+}
 
 Result<DemonBreakdown> matjson::Serialize<DemonBreakdown>::fromJson(const matjson::Value& value) {
     if (!value.isObject()) return Err("Expected object");
     DemonBreakdown breakdown;
-    if (auto classic = value.get<std::array<int, 21>>("classic")) breakdown.classic = classic.unwrap();
-    if (auto platformer = value.get<std::array<int, 21>>("platformer")) breakdown.platformer = platformer.unwrap();
+    if (auto classic = getArray<int, 21>(value, "classic")) breakdown.classic = classic.unwrap();
+    if (auto platformer = getArray<int, 21>(value, "platformer")) breakdown.platformer = platformer.unwrap();
     if (auto weekly = value.get<int>("weekly")) breakdown.weekly = weekly.unwrap();
     if (auto event = value.get<int>("event")) breakdown.event = event.unwrap();
     if (auto gauntlet = value.get<int>("gauntlet")) breakdown.gauntlet = gauntlet.unwrap();

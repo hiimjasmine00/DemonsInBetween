@@ -1,7 +1,7 @@
 #include "../DemonsInBetween.hpp"
 #include <Geode/binding/SetIDPopup.hpp>
 #include <Geode/modify/LevelBrowserLayer.hpp>
-#include <jasmine/random.hpp>
+#include <Geode/utils/random.hpp>
 
 using namespace geode::prelude;
 class $modify(DIBLevelBrowserLayer, LevelBrowserLayer) {
@@ -46,7 +46,7 @@ class $modify(DIBLevelBrowserLayer, LevelBrowserLayer) {
         auto f = m_fields.self();
         if (f->m_difficulty <= 0) return;
 
-        loadPage(DemonsInBetween::searchObjectForPage(f->m_difficulty, f->m_currentPage = jasmine::random::getInt(0, f->m_maxPage)));
+        loadPage(DemonsInBetween::searchObjectForPage(f->m_difficulty, f->m_currentPage = random::generate(0, f->m_maxPage)));
     }
 
     void onBetterInfoLast(CCObject* sender) {
@@ -157,8 +157,8 @@ class $modify(DIBLevelBrowserLayer, LevelBrowserLayer) {
         loadPage(DemonsInBetween::searchObjectForPage(f->m_difficulty, --f->m_currentPage));
     }
 #ifdef GEODE_IS_MACOS // In the Geometry Dash binary for macOS, onNextPage and onPrevPage are inlined into keyDown
-    void keyDown(enumKeyCodes key) override {
-        LevelBrowserLayer::keyDown(key);
+    void keyDown(enumKeyCodes key, double timestamp) override {
+        LevelBrowserLayer::keyDown(key, timestamp);
 
         auto f = m_fields.self();
         if (f->m_difficulty <= 0) return;

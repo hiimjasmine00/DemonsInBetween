@@ -12,7 +12,9 @@ class $modify(DIBGameLevelManager, GameLevelManager) {
         auto hook = jasmine::hook::get(self.m_hooks, "GameLevelManager::updateUserScore",
             jasmine::setting::getValue<bool>("enable-demon-breakdown") && jasmine::setting::getValue<bool>("send-demon-breakdown"));
         if (hook) {
-            new EventListener([hook](std::shared_ptr<SettingV3> setting) {
+            SettingChangedEventV3().listen([hook](std::shared_ptr<SettingV3> setting) {
+                if (setting->getModID() != GEODE_MOD_ID) return;
+
                 auto key = setting->getKey();
                 auto isEnable = key == "enable-demon-breakdown";
                 auto isSend = key == "send-demon-breakdown";
@@ -26,7 +28,7 @@ class $modify(DIBGameLevelManager, GameLevelManager) {
                     : jasmine::setting::getValue<bool>("send-demon-breakdown");
 
                 jasmine::hook::toggle(hook, enableDemonBreakdown && sendDemonBreakdown);
-            }, SettingChangedFilterV3(GEODE_MOD_ID, std::nullopt));
+            }).leak();
         }
     }
 

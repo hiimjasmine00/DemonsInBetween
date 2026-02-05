@@ -7,7 +7,7 @@ using namespace geode::prelude;
 
 DIBInfoPopup* DIBInfoPopup::create(const DemonBreakdown& breakdown) {
     auto ret = new DIBInfoPopup();
-    if (ret->initAnchored(380.0f, 210.0f, breakdown, "GJ_square02.png")) {
+    if (ret->init(breakdown)) {
         ret->autorelease();
         return ret;
     }
@@ -15,7 +15,9 @@ DIBInfoPopup* DIBInfoPopup::create(const DemonBreakdown& breakdown) {
     return nullptr;
 }
 
-bool DIBInfoPopup::setup(const DemonBreakdown& breakdown) {
+bool DIBInfoPopup::init(const DemonBreakdown& breakdown) {
+    if (!Popup::init(380.0f, 210.0f, "GJ_square02.png")) return false;
+
     setID("DIBInfoPopup");
     m_mainLayer->setID("main-layer");
     m_buttonMenu->setID("button-menu");
@@ -146,10 +148,10 @@ void DIBInfoPopup::onClose(CCObject* sender) {
     Popup::onClose(sender);
 }
 
-void DIBInfoPopup::keyDown(enumKeyCodes key) {
+void DIBInfoPopup::keyDown(enumKeyCodes key, double timestamp) {
     switch (key) {
         case KEY_Left: case CONTROLLER_Left: return loadPage(m_page - 1);
         case KEY_Right: case CONTROLLER_Right: return loadPage(m_page + 1);
-        default: return Popup::keyDown(key);
+        default: return Popup::keyDown(key, timestamp);
     }
 }

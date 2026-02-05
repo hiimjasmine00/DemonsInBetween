@@ -1,4 +1,7 @@
 # Demons In Between Changelog
+## v1.5.3 (2026-02-05)
+- Ported to Geometry Dash v2.208 / Geode SDK v5.0.0
+
 ## v1.5.2 (2025-10-27)
 - Fixed a bug where the demon breakdown would not count main levels (Reported by [BoiledGold](user:33943442))
 

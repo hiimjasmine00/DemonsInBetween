@@ -8,7 +8,7 @@ using namespace jasmine::nodes;
 
 DIBSearchPopup* DIBSearchPopup::create() {
     auto ret = new DIBSearchPopup();
-    if (ret->initAnchored(350.0f, 280.0f)) {
+    if (ret->init()) {
         ret->autorelease();
         return ret;
     }
@@ -16,7 +16,9 @@ DIBSearchPopup* DIBSearchPopup::create() {
     return nullptr;
 }
 
-bool DIBSearchPopup::setup() {
+bool DIBSearchPopup::init() {
+    if (!Popup::init(350.0f, 280.0f)) return false;
+
     setID("DIBSearchPopup");
     setTitle("Quick Search");
     m_title->setID("quick-search-title");
