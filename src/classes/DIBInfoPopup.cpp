@@ -32,23 +32,23 @@ bool DIBInfoPopup::init(const DemonBreakdown& breakdown) {
     okButton->setID("ok-button");
     m_buttonMenu->addChild(okButton);
 
-    m_demonSprites = CCArray::create();
-    m_demonClassicLabels = CCArray::create();
-    m_demonPlatformerLabels = CCArray::create();
+    m_demonSprites.reserve(5);
+    m_demonClassicLabels.reserve(5);
+    m_demonPlatformerLabels.reserve(5);
 
     for (int i = 0; i < 5; i++) {
         auto demonSprite = CCSprite::create();
         demonSprite->setPosition({ 50.0f + i * 70.0f, 140.0f });
         demonSprite->setID(fmt::format("demon-sprite-{}", i + 1));
         m_mainLayer->addChild(demonSprite);
-        m_demonSprites->addObject(demonSprite);
+        m_demonSprites.push_back(demonSprite);
 
         auto classicLabel = CCLabelBMFont::create("", "goldFont.fnt");
         classicLabel->setScale(0.6f);
         classicLabel->setPosition({ 50.0f + i * 70.0f, 90.0f });
         classicLabel->setID(fmt::format("classic-label-{}", i + 1));
         m_mainLayer->addChild(classicLabel);
-        m_demonClassicLabels->addObject(classicLabel);
+        m_demonClassicLabels.push_back(classicLabel);
 
         auto platformerLabel = CCLabelBMFont::create("", "goldFont.fnt");
         platformerLabel->setScale(0.6f);
@@ -56,7 +56,7 @@ bool DIBInfoPopup::init(const DemonBreakdown& breakdown) {
         platformerLabel->setColor({ 255, 200, 255 });
         platformerLabel->setID(fmt::format("platformer-label-{}", i + 1));
         m_mainLayer->addChild(platformerLabel);
-        m_demonPlatformerLabels->addObject(platformerLabel);
+        m_demonPlatformerLabels.push_back(platformerLabel);
     }
 
     m_completionCountClassic = breakdown.classic;
@@ -133,13 +133,11 @@ void DIBInfoPopup::loadPage(int page) {
     auto sfc = CCSpriteFrameCache::get();
     for (int i = 0; i < 5; i++) {
         auto difficulty = m_page * 5 + i + 1;
-        auto demonSprite = static_cast<CCSprite*>(m_demonSprites->objectAtIndex(i));
+        auto demonSprite = m_demonSprites[i];
         demonSprite->setDisplayFrame(sfc->spriteFrameByName(fmt::format("DIB_{:02d}_btn2_001.png"_spr, difficulty).c_str()));
         demonSprite->setPosition(DemonsInBetween::offsetForDifficulty(difficulty, GJDifficultyName::Long) + CCPoint { 50.0f + i * 70.0f, 140.0f });
-        static_cast<CCLabelBMFont*>(m_demonClassicLabels->objectAtIndex(i))->setString(
-            fmt::to_string(m_completionCountClassic[difficulty]).c_str());
-        static_cast<CCLabelBMFont*>(m_demonPlatformerLabels->objectAtIndex(i))->setString(
-            fmt::to_string(m_completionCountPlatformer[difficulty]).c_str());
+        m_demonClassicLabels[i]->setString(fmt::to_string(m_completionCountClassic[difficulty]).c_str());
+        m_demonPlatformerLabels[i]->setString(fmt::to_string(m_completionCountPlatformer[difficulty]).c_str());
     }
 }
 
