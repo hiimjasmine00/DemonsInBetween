@@ -15,7 +15,7 @@
         "geode.node-ids": ">=v1.1.0",
         "hiimjasmine00.user_data_api": {
             "version": ">=v2.0.0-beta.1",
-            "importance": "recommended"
+            "required": false
         }
     },
     "resources": {
