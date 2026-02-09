@@ -1,12 +1,12 @@
 {
-    "geode": "5.0.0-alpha.1",
+    "geode": "4.10.0",
     "gd": {
-        "android": "2.2081",
-        "win": "2.2081",
-        "mac": "2.2081",
-        "ios": "2.2081"
+        "android": "2.207",
+        "win": "2.207",
+        "mac": "2.207",
+        "ios": "2.207"
     },
-    "version": "v1.5.3-beta.1",
+    "version": "v1.5.3",
     "id": "hiimjustin000.demons_in_between",
     "name": "Demons In Between",
     "developer": "hiimjasmine00",
@@ -83,7 +83,12 @@
             "type": "bool",
             "enable-if": "enable-demon-breakdown",
             "default": true
-        }
+        },
+        "add custom demons": {
+        "name": "Add Custom Demons",
+        "description": "Whether or not to add custom demons",
+        "type": "bool",
+        "inport-if": "inport-demons",
     },
     "links": {
         "community": "https://discord.gg/QVKmbvBXA7",
