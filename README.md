@@ -43,7 +43,7 @@ Expanded demon difficulties.
 - Crazy Demon (Tier 20)
 - Bizarre Demon (Tier 21)
 - Brutal Demon (Tier 22)
-- Extreme Demon (Tiers 23-35)
+- Extreme Demon (Tiers 23+)
 
 ## License
 This mod is licensed under the [MIT License](https://github.com/hiimjasmine00/DemonsInBetween/blob/master/LICENSE).

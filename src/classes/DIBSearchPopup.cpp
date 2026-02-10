@@ -34,9 +34,11 @@ bool DIBSearchPopup::init() {
     m_mainLayer->addChild(table);
 
     for (int i = 1; i < 21; i++) {
-        auto button = CCMenuItemExt::createSpriteExtraWithFrameName(fmt::format("DIB_{:02d}_btn2_001.png"_spr, i), 1.0f, [i](auto) {
-            if (auto scene = DemonsInBetween::browseScene(i)) CCDirector::get()->pushScene(CCTransitionFade::create(0.5f, scene));
-        });
+        auto button = CCMenuItemSpriteExtra::create(
+            CCSprite::createWithSpriteFrameName(fmt::format("DIB_{:02d}_btn2_001.png"_spr, i).c_str()),
+            this, menu_selector(DIBSearchPopup::onSearch)
+        );
+        button->setTag(i);
         button->setID(fmt::format("search-button-{}", i));
         table->addButton(button);
     }
@@ -44,4 +46,10 @@ bool DIBSearchPopup::init() {
     table->updateAllLayouts();
 
     return true;
+}
+
+void DIBSearchPopup::onSearch(CCObject* sender) {
+    if (auto scene = DemonsInBetween::browseScene(sender->getTag())) {
+        CCDirector::get()->pushScene(CCTransitionFade::create(0.5f, scene));
+    }
 }

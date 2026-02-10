@@ -110,14 +110,15 @@ bool DIBInfoPopup::init(const DemonBreakdown& breakdown) {
 
     bottomRightMenu->updateLayout();
 
-    auto prevButton = CCMenuItemExt::createSpriteExtraWithFrameName("GJ_arrow_01_001.png", 1.0f, [this](auto) { loadPage(m_page - 1); });
+    auto prevButtonSprite = CCSprite::createWithSpriteFrameName("GJ_arrow_01_001.png");
+    auto prevButton = CCMenuItemSpriteExtra::create(prevButtonSprite, this, menu_selector(DIBInfoPopup::onPrevPage));
     prevButton->setPosition({ -20.0f, 105.0f });
     prevButton->setID("prev-button");
     m_buttonMenu->addChild(prevButton);
 
     auto nextButtonSprite = CCSprite::createWithSpriteFrameName("GJ_arrow_01_001.png");
     nextButtonSprite->setFlipX(true);
-    auto nextButton = CCMenuItemExt::createSpriteExtra(nextButtonSprite, [this](auto) { loadPage(m_page + 1); });
+    auto nextButton = CCMenuItemSpriteExtra::create(nextButtonSprite, this, menu_selector(DIBInfoPopup::onNextPage));
     nextButton->setPosition({ 400.0f, 105.0f });
     nextButton->setID("next-button");
     m_buttonMenu->addChild(nextButton);
@@ -125,6 +126,14 @@ bool DIBInfoPopup::init(const DemonBreakdown& breakdown) {
     loadPage(0);
 
     return true;
+}
+
+void DIBInfoPopup::onPrevPage(CCObject* sender) {
+    loadPage(m_page - 1);
+}
+
+void DIBInfoPopup::onNextPage(CCObject* sender) {
+    loadPage(m_page + 1);
 }
 
 void DIBInfoPopup::loadPage(int page) {

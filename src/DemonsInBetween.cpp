@@ -4,7 +4,6 @@
 #include <Geode/binding/GJGameLevel.hpp>
 #include <Geode/loader/GameEvent.hpp>
 #include <Geode/loader/Mod.hpp>
-#include <jasmine/convert.hpp>
 #include <jasmine/search.hpp>
 #include <jasmine/setting.hpp>
 #include <jasmine/string.hpp>
@@ -25,8 +24,7 @@ $on_game(Loaded) {
             if (!res.ok()) return;
 
             constexpr std::array difficulties = {
-                0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 11, 12, 13, 14, 14, 15, 15,
-                16, 17, 18, 19, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20
+                0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 11, 12, 13, 14, 14, 15, 15, 16, 17, 18, 19, 20
             };
             constexpr std::array mainLevels = { 0, 14, 18, 20 };
 
@@ -34,26 +32,26 @@ $on_game(Loaded) {
             auto index = str.find('\n');
             if (index == std::string::npos) index = str.size();
             auto keys = string::splitView(std::string_view(str.data() + 1, index - 2), "\",\"");
-            for (auto line : jasmine::string::SplitCharIterator(std::string_view(str.data() + index + 1, str.size() - index - 1), '\n')) {
+            for (auto line : jasmine::string::SplitIterator(std::string_view(str.data() + index + 1, str.size() - index - 1), "\n")) {
                 auto values = string::splitView(line.substr(1, line.size() - 2), "\",\"");
                 LadderDemon demon;
                 for (size_t j = 0; j < keys.size() && j < values.size(); j++) {
                     auto key = keys[j];
                     auto value = values[j];
                     if (key == "ID") {
-                        jasmine::convert::to(value, demon.id);
+                        if (auto num = numFromString<int>(value)) demon.id = num.unwrap();
                         if (demon.id < mainLevels.size()) demon.id = mainLevels[demon.id];
                         if (demon.id < 1) break;
                     }
                     else if (key == "Tier") {
-                        jasmine::convert::to(value, demon.tier);
+                        if (auto num = numFromString<double>(value)) demon.tier = num.unwrap();
                         int roundedTier = round(demon.tier);
-                        demon.difficulty = roundedTier < difficulties.size() ? difficulties[roundedTier] : 0;
+                        demon.difficulty = roundedTier < difficulties.size() ? difficulties[roundedTier] : 20;
                         if (demon.difficulty > 0) DemonsInBetween::gddlDifficulties[demon.difficulty].push_back(fmt::to_string(demon.id));
                         else break;
                     }
                     else if (key == "Enjoyment") {
-                        jasmine::convert::to(value, demon.enjoyment);
+                        if (auto num = numFromString<double>(value)) demon.enjoyment = num.unwrap();
                     }
                 }
                 if (demon.id > 0 && demon.difficulty > 0) DemonsInBetween::gddl.emplace(demon.id, demon);

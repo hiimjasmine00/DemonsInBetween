@@ -11,9 +11,10 @@ protected:
     int m_page;
 
     bool init(const DemonBreakdown&);
-    void setupDemonInfo();
+    void onPrevPage(cocos2d::CCObject*);
+    void onNextPage(cocos2d::CCObject*);
     void loadPage(int);
-    void onClose(CCObject*) override;
+    void onClose(cocos2d::CCObject*) override;
     void keyDown(cocos2d::enumKeyCodes, double) override;
 public:
     static DIBInfoPopup* create(const DemonBreakdown&);
