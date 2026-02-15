@@ -1,5 +1,5 @@
 # Demons In Between Changelog
-## v1.5.3 (2026-02-10)
+## v1.5.3 (2026-02-14)
 - Ported to Geometry Dash v2.208 / Geode SDK v5.0.0
 - Added support for the new GDDL expansion tiers (Tiers 36-39)
 
