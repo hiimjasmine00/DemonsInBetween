@@ -1,4 +1,7 @@
 # Demons In Between Changelog
+## v1.5.5 (2026-02-27)
+- Fixed setting change events
+
 ## v1.5.4 (2026-02-15)
 - I don't want to talk about it
 

@@ -9,24 +9,17 @@ using namespace geode::prelude;
 
 class $modify(DIBGameLevelManager, GameLevelManager) {
     static void onModify(ModifyBase<ModifyDerive<DIBGameLevelManager, GameLevelManager>>& self) {
-        auto hook = jasmine::hook::get(self.m_hooks, "GameLevelManager::updateUserScore",
-            jasmine::setting::getValue<bool>("enable-demon-breakdown") && jasmine::setting::getValue<bool>("send-demon-breakdown"));
+        auto enableBreakdown = jasmine::setting::get<bool>("enable-demon-breakdown");
+        auto sendBreakdown = jasmine::setting::get<bool>("send-demon-breakdown");
+
+        auto hook = jasmine::hook::get(self.m_hooks, "GameLevelManager::updateUserScore", enableBreakdown->getValue() && sendBreakdown->getValue());
         if (hook) {
-            SettingChangedEventV3().listen([hook](std::string_view modID, std::string_view key, std::shared_ptr<SettingV3> setting) {
-                if (modID != GEODE_MOD_ID) return;
+            SettingChangedEventV3(GEODE_MOD_ID, "enable-demon-breakdown").listen([sendBreakdown, hook](std::shared_ptr<SettingV3> setting) {
+                jasmine::hook::toggle(hook, std::static_pointer_cast<BoolSettingV3>(std::move(setting))->getValue() && sendBreakdown->getValue());
+            }).leak();
 
-                auto isEnable = key == "enable-demon-breakdown";
-                auto isSend = key == "send-demon-breakdown";
-                if (!isEnable && !isSend) return;
-
-                auto enableDemonBreakdown = isEnable
-                    ? std::static_pointer_cast<BoolSettingV3>(std::move(setting))->getValue()
-                    : jasmine::setting::getValue<bool>("enable-demon-breakdown");
-                auto sendDemonBreakdown = isSend
-                    ? std::static_pointer_cast<BoolSettingV3>(std::move(setting))->getValue()
-                    : jasmine::setting::getValue<bool>("send-demon-breakdown");
-
-                jasmine::hook::toggle(hook, enableDemonBreakdown && sendDemonBreakdown);
+            SettingChangedEventV3(GEODE_MOD_ID, "send-demon-breakdown").listen([enableBreakdown, hook](std::shared_ptr<SettingV3> setting) {
+                jasmine::hook::toggle(hook, std::static_pointer_cast<BoolSettingV3>(std::move(setting))->getValue() && enableBreakdown->getValue());
             }).leak();
         }
     }
