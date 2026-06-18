@@ -1,9 +1,10 @@
 #include "DIBInfoPopup.hpp"
 #include <Geode/binding/ButtonSprite.hpp>
 #include <Geode/binding/GameToolbox.hpp>
-#include <Geode/loader/Mod.hpp>
+#include <jasmine/mod.hpp>
 
 using namespace geode::prelude;
+using namespace jasmine::mod;
 
 DIBInfoPopup* DIBInfoPopup::create(const DemonBreakdown& breakdown) {
     auto ret = new DIBInfoPopup();
@@ -32,23 +33,19 @@ bool DIBInfoPopup::init(const DemonBreakdown& breakdown) {
     okButton->setID("ok-button");
     m_buttonMenu->addChild(okButton);
 
-    m_demonSprites.reserve(5);
-    m_demonClassicLabels.reserve(5);
-    m_demonPlatformerLabels.reserve(5);
-
     for (int i = 0; i < 5; i++) {
         auto demonSprite = CCSprite::create();
         demonSprite->setPosition({ 50.0f + i * 70.0f, 140.0f });
         demonSprite->setID(fmt::format("demon-sprite-{}", i + 1));
         m_mainLayer->addChild(demonSprite);
-        m_demonSprites.push_back(demonSprite);
+        m_demonSprites[i] = demonSprite;
 
         auto classicLabel = CCLabelBMFont::create("", "goldFont.fnt");
         classicLabel->setScale(0.6f);
         classicLabel->setPosition({ 50.0f + i * 70.0f, 90.0f });
         classicLabel->setID(fmt::format("classic-label-{}", i + 1));
         m_mainLayer->addChild(classicLabel);
-        m_demonClassicLabels.push_back(classicLabel);
+        m_demonClassicLabels[i] = classicLabel;
 
         auto platformerLabel = CCLabelBMFont::create("", "goldFont.fnt");
         platformerLabel->setScale(0.6f);
@@ -56,7 +53,7 @@ bool DIBInfoPopup::init(const DemonBreakdown& breakdown) {
         platformerLabel->setColor({ 255, 200, 255 });
         platformerLabel->setID(fmt::format("platformer-label-{}", i + 1));
         m_mainLayer->addChild(platformerLabel);
-        m_demonPlatformerLabels.push_back(platformerLabel);
+        m_demonPlatformerLabels[i] = platformerLabel;
     }
 
     m_completionCountClassic = breakdown.classic;

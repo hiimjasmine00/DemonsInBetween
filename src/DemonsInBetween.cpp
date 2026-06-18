@@ -3,13 +3,15 @@
 #include <Geode/binding/GameStatsManager.hpp>
 #include <Geode/binding/GJGameLevel.hpp>
 #include <Geode/loader/GameEvent.hpp>
-#include <Geode/loader/Mod.hpp>
+#include <jasmine/mod.hpp>
 #include <jasmine/search.hpp>
 #include <jasmine/setting.hpp>
 #include <jasmine/string.hpp>
 #include <jasmine/web.hpp>
+#include <matjson/std.hpp>
 
 using namespace geode::prelude;
+using namespace jasmine::mod;
 
 std::map<int, LadderDemon> DemonsInBetween::gddl;
 std::map<int, std::vector<std::string>> DemonsInBetween::gddlDifficulties = {

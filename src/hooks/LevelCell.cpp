@@ -23,6 +23,8 @@ class $modify(DIBLevelCell, LevelCell) {
         if (!difficultyContainer) difficultyContainer = m_mainLayer->getChildByID("grd-demon-icon-layer");
         if (!difficultyContainer) return;
 
+        if (difficultyContainer->getChildByID("grd-difficulty")) return;
+
         auto difficultySprite = static_cast<CCNodeRGBA*>(difficultyContainer->getChildByID("difficulty-sprite"));
         if (!difficultySprite || !difficultySprite->isVisible()) return; // If invisible, we're just going to assume it's Grandpa Demon
 

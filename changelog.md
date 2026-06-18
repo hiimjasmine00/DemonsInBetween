@@ -1,4 +1,7 @@
 # Demons In Between Changelog
+## v1.5.6 (2026-06-16)
+- Add compatibility with unofficial ports of "Grandpa Demon" by ItzKiba
+
 ## v1.5.5 (2026-02-27)
 - Fixed setting change events
 

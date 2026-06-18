@@ -1,9 +1,10 @@
 #include "DIBSearchPopup.hpp"
 #include "../DemonsInBetween.hpp"
-#include <Geode/loader/Mod.hpp>
+#include <jasmine/mod.hpp>
 #include <jasmine/nodes.hpp>
 
 using namespace geode::prelude;
+using namespace jasmine::mod;
 using namespace jasmine::nodes;
 
 DIBSearchPopup* DIBSearchPopup::create() {
