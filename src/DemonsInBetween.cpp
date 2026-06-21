@@ -3,6 +3,7 @@
 #include <Geode/binding/GameStatsManager.hpp>
 #include <Geode/binding/GJGameLevel.hpp>
 #include <Geode/loader/GameEvent.hpp>
+#include <Geode/ui/Notification.hpp>
 #include <jasmine/mod.hpp>
 #include <jasmine/search.hpp>
 #include <jasmine/setting.hpp>
@@ -23,7 +24,12 @@ $on_game(Loaded) {
     spawn(
         web::WebRequest().get("https://docs.google.com/spreadsheets/d/1qKlWKpDkOpU1ZF6V6xGfutDY2NvcA8MNPnsv6GBkKPQ/gviz/tq?tqx=out:csv&sheet=GDDL"),
         [](web::WebResponse res) {
-            if (!res.ok()) return;
+            if (!res.ok()) {
+                auto errorString = fmt::format("Failed to fetch GDDL data: HTTP {}", res.code());
+                log::error("{}", errorString);
+                Notification::create(errorString, NotificationIcon::Error)->show();
+                return;
+            }
 
             constexpr std::array difficulties = {
                 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 11, 12, 13, 14, 14, 15, 15, 16, 17, 18, 19, 20
@@ -58,6 +64,10 @@ $on_game(Loaded) {
                 }
                 if (demon.id > 0 && demon.difficulty > 0) DemonsInBetween::gddl.emplace(demon.id, demon);
             }
+
+            auto successString = fmt::format("Loaded GDDL data with {} demons", DemonsInBetween::gddl.size());
+            log::info("{}", successString);
+            Notification::create(successString, NotificationIcon::Success)->show();
         }
     );
 }

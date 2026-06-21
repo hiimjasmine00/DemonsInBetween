@@ -1,9 +1,9 @@
 #include "../DemonsInBetween.hpp"
+#include <Geode/binding/FLAlertLayer.hpp>
 #include <Geode/binding/GJDifficultySprite.hpp>
 #include <Geode/binding/GJGameLevel.hpp>
 #include <Geode/modify/LevelInfoLayer.hpp>
 #include <Geode/ui/BasedButtonSprite.hpp>
-#include <Geode/ui/Popup.hpp>
 #include <jasmine/setting.hpp>
 
 using namespace geode::prelude;

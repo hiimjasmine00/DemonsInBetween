@@ -1,4 +1,7 @@
 # Demons In Between Changelog
+## v1.5.7 (2026-06-21)
+- Added notifications for when the GDDL data is successfully loaded or fails to load
+
 ## v1.5.6 (2026-06-16)
 - Add compatibility with unofficial ports of "Grandpa Demon" by ItzKiba
 
