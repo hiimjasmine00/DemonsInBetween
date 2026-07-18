@@ -65,6 +65,8 @@ $on_game(Loaded) {
                 if (demon.id > 0 && demon.difficulty > 0) DemonsInBetween::gddl.emplace(demon.id, demon);
             }
 
+            DemonsInBetweenLoadedEvent().send(DemonsInBetween::gddl);
+
             auto successString = fmt::format("Loaded GDDL data with {} demons", DemonsInBetween::gddl.size());
             log::info("{}", successString);
             Notification::create(successString, NotificationIcon::Success)->show();

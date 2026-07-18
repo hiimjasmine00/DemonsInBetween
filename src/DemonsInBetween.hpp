@@ -1,14 +1,8 @@
 #include <cocos2d.h>
+#include <DemonsInBetweenAPI.hpp>
 #include <Geode/Enums.hpp>
 #include <Geode/GeneratedPredeclare.hpp>
 #include <matjson.hpp>
-
-struct LadderDemon {
-    int id = 0;
-    double tier = 0.0;
-    double enjoyment = 0.0;
-    int difficulty = 0;
-};
 
 struct DemonBreakdown {
     std::array<int, 21> classic = {};

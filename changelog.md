@@ -1,4 +1,7 @@
 # Demons In Between Changelog
+## v1.6.0 (2026-07-18)
+- Added an event-based API for other mods to use, allowing them to get the GDDL data without having to fetch and parse it themselves
+
 ## v1.5.7 (2026-06-21)
 - Added notifications for when the GDDL data is successfully loaded or fails to load
 
