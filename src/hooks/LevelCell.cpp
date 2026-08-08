@@ -23,10 +23,16 @@ class $modify(DIBLevelCell, LevelCell) {
         if (!difficultyContainer) difficultyContainer = m_mainLayer->getChildByID("grd-demon-icon-layer");
         if (!difficultyContainer) return;
 
-        if (difficultyContainer->getChildByID("grd-difficulty")) return;
+        if (auto grdDifficulty = difficultyContainer->getChildByID("grd-difficulty")) {
+            if (jasmine::setting::getValue<bool>("grandpa-demon-override")) {
+                grdDifficulty->setVisible(false);
+                if (auto grdInfinity = difficultyContainer->getChildByID("grd-infinity")) grdInfinity->setVisible(false);
+            }
+            else return;
+        }
 
         auto difficultySprite = static_cast<CCNodeRGBA*>(difficultyContainer->getChildByID("difficulty-sprite"));
-        if (!difficultySprite || !difficultySprite->isVisible()) return; // If invisible, we're just going to assume it's Grandpa Demon
+        if (!difficultySprite) return;
 
         auto gddpDifficulty = difficultyContainer->getChildByID("gddp-difficulty");
         if (gddpDifficulty && !jasmine::setting::getValue<bool>("gddp-integration-override")) return;

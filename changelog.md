@@ -1,4 +1,9 @@
 # Demons In Between Changelog
+## v1.7.0 (2026-08-08)
+- **The Mega Update**
+- Added 10 new demon difficulties past Extreme Demon
+- Added "Grandpa Demon Override" setting to override Grandpa Demon difficulties with the new difficulties
+
 ## v1.6.0 (2026-07-18)
 - Added an event-based API for other mods to use, allowing them to get the GDDL data without having to fetch and parse it themselves
 

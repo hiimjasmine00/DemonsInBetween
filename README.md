@@ -43,7 +43,17 @@ Expanded demon difficulties.
 - Crazy Demon (Tier 20)
 - Bizarre Demon (Tier 21)
 - Brutal Demon (Tier 22)
-- Extreme Demon (Tiers 23+)
+- Extreme Demon (Tier 23)
+- Radical Demon (Tiers 24-25)
+- Supreme Demon (Tiers 26-27)
+- Ultimate Demon (Tier 28)
+- Horrendous Demon (Tiers 29-30)
+- Inhumane Demon (Tiers 31-32)
+- Slaughter Demon (Tiers 33-34)
+- Apocalyptic Demon (Tiers 35-36)
+- Divine Demon (Tiers 37-38)
+- Silent Demon (Tiers 39+)
+- Infinite Demon (Top 1)
 
 ## License
 This mod is licensed under the [MIT License](https://github.com/hiimjasmine00/DemonsInBetween/blob/master/LICENSE).

@@ -11,7 +11,9 @@ using namespace geode::prelude;
 constexpr std::array difficulties = {
     "Unknown Demon", "Free Demon", "Peaceful Demon", "Simple Demon", "Easy Demon", "Casual Demon", "Mild Demon",
     "Medium Demon", "Normal Demon", "Moderate Demon", "Tricky Demon", "Hard Demon", "Harder Demon", "Tough Demon",
-    "Wild Demon", "Insane Demon", "Cruel Demon", "Crazy Demon", "Bizarre Demon", "Brutal Demon", "Extreme Demon"
+    "Wild Demon", "Insane Demon", "Cruel Demon", "Crazy Demon", "Bizarre Demon", "Brutal Demon", "Extreme Demon",
+    "Radical Demon", "Supreme Demon", "Ultimate Demon", "Horrendous Demon", "Inhumane Demon", "Slaughter Demon",
+    "Apocalyptic Demon", "Divine Demon", "Silent Demon", "Infinite Demon"
 };
 constexpr std::array originalDifficulties = {
     "Hard Demon", "Unknown Demon", "Unknown Demon", "Easy Demon", "Medium Demon", "Insane Demon", "Extreme Demon"
@@ -30,11 +32,20 @@ class $modify(DIBLevelInfoLayer, LevelInfoLayer) {
 
         auto createDemon = true;
 
-        if (getChildByID("grd-difficulty") || !jasmine::setting::getValue<bool>("enable-difficulties")) createDemon = false;
-
-        auto gddpDifficulty = getChildByID("gddp-difficulty");
-        if (gddpDifficulty && !jasmine::setting::getValue<bool>("gddp-integration-override")) createDemon = false;
-        else if (gddpDifficulty) gddpDifficulty->setVisible(false);
+        if (jasmine::setting::getValue<bool>("enable-difficulties")) {
+            if (auto grdDifficulty = getChildByID("grd-difficulty")) {
+                if (jasmine::setting::getValue<bool>("grandpa-demon-override")) {
+                    grdDifficulty->setVisible(false);
+                    if (auto grdInfinity = getChildByID("grd-infinity")) grdInfinity->setVisible(false);
+                }
+                else createDemon = false;
+            }
+            else if (auto gddpDifficulty = getChildByID("gddp-difficulty")) {
+                if (jasmine::setting::getValue<bool>("gddp-integration-override")) gddpDifficulty->setVisible(false);
+                else createDemon = false;
+            }
+        }
+        else createDemon = false;
 
         auto levelID = level->m_levelID.value();
         auto demon = DemonsInBetween::demonForLevel(levelID);

@@ -3,8 +3,8 @@
 
 class DIBInfoPopup : public geode::Popup {
 protected:
-    std::array<int, 21> m_completionCountClassic;
-    std::array<int, 21> m_completionCountPlatformer;
+    std::array<int, 31> m_completionCountClassic;
+    std::array<int, 31> m_completionCountPlatformer;
     std::array<cocos2d::CCSprite*, 5> m_demonSprites;
     std::array<cocos2d::CCLabelBMFont*, 5> m_demonClassicLabels;
     std::array<cocos2d::CCLabelBMFont*, 5> m_demonPlatformerLabels;

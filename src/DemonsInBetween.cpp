@@ -17,8 +17,12 @@ using namespace jasmine::mod;
 std::map<int, LadderDemon> DemonsInBetween::gddl;
 std::map<int, std::vector<std::string>> DemonsInBetween::gddlDifficulties = {
     { 1, {} }, { 2, {} }, { 3, {} }, { 4, {} }, { 5, {} }, { 6, {} }, { 7, {} }, { 8, {} }, { 9, {} }, { 10, {} },
-    { 11, {} }, { 12, {} }, { 13, {} }, { 14, {} }, { 15, {} }, { 16, {} }, { 17, {} }, { 18, {} }, { 19, {} }, { 20, {} }
+    { 11, {} }, { 12, {} }, { 13, {} }, { 14, {} }, { 15, {} }, { 16, {} }, { 17, {} }, { 18, {} }, { 19, {} }, { 20, {} },
+    { 21, {} }, { 22, {} }, { 23, {} }, { 24, {} }, { 25, {} }, { 26, {} }, { 27, {} }, { 28, {} }, { 29, {} }, { 30, {} }
 };
+
+// Yes, this is hardcoded, but surely I'll update this when a new top 1 is rated, right? Right? ...Right?
+constexpr int hardestDemon = 127323087;
 
 $on_game(Loaded) {
     spawn(
@@ -32,7 +36,8 @@ $on_game(Loaded) {
             }
 
             constexpr std::array difficulties = {
-                0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 11, 12, 13, 14, 14, 15, 15, 16, 17, 18, 19, 20
+                0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 11, 12, 13, 14, 14, 15, 15, 16, 17, 18, 19, 20,
+                21, 21, 22, 22, 23, 24, 24, 25, 25, 26, 26, 27, 27, 28, 28, 29
             };
             constexpr std::array mainLevels = { 0, 14, 18, 20 };
 
@@ -48,13 +53,16 @@ $on_game(Loaded) {
                     auto value = values[j];
                     if (key == "ID") {
                         if (auto num = numFromString<int>(value)) demon.id = num.unwrap();
+                        if (demon.id == hardestDemon) demon.difficulty = 30;
                         if (demon.id < mainLevels.size()) demon.id = mainLevels[demon.id];
                         if (demon.id < 1) break;
                     }
                     else if (key == "Tier") {
                         if (auto num = numFromString<double>(value)) demon.tier = num.unwrap();
-                        int roundedTier = round(demon.tier);
-                        demon.difficulty = roundedTier < difficulties.size() ? difficulties[roundedTier] : 20;
+                        if (demon.id != hardestDemon) {
+                            int roundedTier = round(demon.tier);
+                            demon.difficulty = roundedTier < difficulties.size() ? difficulties[roundedTier] : 29;
+                        }
                         if (demon.difficulty > 0) DemonsInBetween::gddlDifficulties[demon.difficulty].push_back(fmt::to_string(demon.id));
                         else break;
                     }
@@ -80,19 +88,23 @@ LadderDemon* DemonsInBetween::demonForLevel(int levelID) {
 }
 
 CCPoint DemonsInBetween::offsetForDifficulty(int difficulty, GJDifficultyName name) {
-    constexpr std::array<CCPoint, 21> longOffsets = {
+    constexpr std::array<CCPoint, 31> longOffsets = {
         CCPoint { 0.0f, 0.0f },
         { 0.0f, -5.0f }, { 0.125f, -5.0f }, { 0.0f, -5.0f }, { 0.0f, -5.125f }, { 0.25f, -5.0f },
         { 0.125f, -4.75f }, { 0.0f, -5.0f }, { 0.0f, -4.125f }, { -0.125f, -4.125f }, { 0.0f, -4.0f },
         { -0.125f, -4.125f }, { 0.0f, -4.125f }, { 0.125f, -4.125f }, { 0.0f, -4.125f }, { 0.0f, -4.125f },
-        { 0.0f, -3.625f }, { 0.0f, -3.625f }, { 0.0f, -3.5f }, { 0.0f, -3.5f }, { 0.0f, -3.5f }
+        { 0.0f, -3.625f }, { 0.0f, -3.625f }, { 0.0f, -3.5f }, { 0.0f, -3.5f }, { 0.0f, -3.5f },
+        { -0.25f, -3.5f }, { -0.125f, -3.375f }, { -0.25f, -3.5f }, { -0.25f, -3.5f }, { -0.125f, -3.5f },
+        { -0.25f, -3.5f }, { -0.25f, -3.5f }, { 0.0f, -3.5f }, { 0.0f, -3.5f }, { -0.25f, -3.0f }
     };
-    constexpr std::array<CCPoint, 21> shortOffsets = {
+    constexpr std::array<CCPoint, 31> shortOffsets = {
         CCPoint { 0.0f, 0.0f },
         { -0.125f, -0.25f }, { -0.125f, -0.25f }, { -0.125f, -0.25f }, { -0.125f, -0.375f }, { -0.125f, -0.25f },
         { -0.125f, -0.25f }, { -0.125f, -0.375f }, { -0.125f, 0.5f }, { -0.125f, 0.5f }, { -0.125f, 0.25f },
         { -0.125f, 0.5f }, { 0.125f, 0.5f }, { 0.125f, 0.5f }, { 0.125f, 0.5f }, { 0.0f, 0.5f },
-        { 0.0f, 1.25f }, { 0.0f, 1.25f }, { 0.0f, 1.125f }, { 0.0f, 1.125f }, { 0.0f, 1.125f }
+        { 0.0f, 1.25f }, { 0.0f, 1.25f }, { 0.0f, 1.125f }, { 0.0f, 1.125f }, { 0.0f, 1.125f },
+        { 0.0f, 1.25f }, { 0.0f, 1.25f }, { 0.0f, 1.25f }, { 0.0f, 1.25f }, { 0.0f, 1.25f },
+        { 0.0f, 1.25f }, { 0.0f, 1.25f }, { 0.0f, 1.25f }, { 0.0f, 1.25f }, { 0.0f, 1.75f }
     };
 
     auto& offsets = name == GJDifficultyName::Long ? longOffsets : shortOffsets;
@@ -103,7 +115,7 @@ CCSprite* DemonsInBetween::spriteForDifficulty(const CCPoint& position, int diff
     auto sprite = CCSprite::createWithSpriteFrameName(fmt::format(
         "DIB_{:02d}{}_btn{}_001.png"_spr,
         difficulty,
-        state == GJFeatureState::Legendary ? "_4" : state == GJFeatureState::Mythic ? "_5" : "",
+        difficulty < 21 ? (state == GJFeatureState::Legendary ? "_4" : state == GJFeatureState::Mythic ? "_5" : "") : "",
         name == GJDifficultyName::Long ? "2" : ""
     ).c_str());
     sprite->setPosition(position + offsetForDifficulty(difficulty, name));
@@ -112,7 +124,7 @@ CCSprite* DemonsInBetween::spriteForDifficulty(const CCPoint& position, int diff
 }
 
 GJFeatureState DemonsInBetween::stateForLevel(GJGameLevel* level) {
-    auto state = level->m_featured ? (GJFeatureState)(level->m_isEpic + 1) : GJFeatureState::None;
+    auto state = level->m_featured != 0 ? (GJFeatureState)(level->m_isEpic + 1) : GJFeatureState::None;
     if (state == GJFeatureState::Legendary && !jasmine::setting::getValue<bool>("enable-legendary")) state = GJFeatureState::None;
     else if (state == GJFeatureState::Mythic && !jasmine::setting::getValue<bool>("enable-mythic")) state = GJFeatureState::None;
     return state;
@@ -139,7 +151,7 @@ DemonBreakdown DemonsInBetween::createBreakdown() {
         breakdown.classic[demon ? demon->difficulty : 4]++;
     }
 
-    for (auto [_, level] : CCDictionaryExt<std::string, GJGameLevel*>(glm->m_onlineLevels)) {
+    for (auto [_, level] : CCDictionaryExt<const char*, GJGameLevel*>(glm->m_onlineLevels)) {
         if (level->m_stars.value() < 10 || level->m_normalPercent.value() < 100 || !gsm->hasCompletedLevel(level)) continue;
 
         auto& completionCount = level->isPlatformer() ? breakdown.platformer : breakdown.classic;
@@ -181,8 +193,8 @@ Result<std::array<T, N>> getArray(const matjson::Value& value, Key&& key) {
 Result<DemonBreakdown> matjson::Serialize<DemonBreakdown>::fromJson(const matjson::Value& value) {
     if (!value.isObject()) return Err("Expected object");
     DemonBreakdown breakdown;
-    if (auto classic = getArray<int, 21>(value, "classic")) breakdown.classic = classic.unwrap();
-    if (auto platformer = getArray<int, 21>(value, "platformer")) breakdown.platformer = platformer.unwrap();
+    if (auto classic = getArray<int, 31>(value, "classic")) breakdown.classic = classic.unwrap();
+    if (auto platformer = getArray<int, 31>(value, "platformer")) breakdown.platformer = platformer.unwrap();
     if (auto weekly = value.get<int>("weekly")) breakdown.weekly = weekly.unwrap();
     if (auto event = value.get<int>("event")) breakdown.event = event.unwrap();
     if (auto gauntlet = value.get<int>("gauntlet")) breakdown.gauntlet = gauntlet.unwrap();

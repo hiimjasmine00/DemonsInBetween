@@ -134,7 +134,7 @@ void DIBInfoPopup::onNextPage(CCObject* sender) {
 }
 
 void DIBInfoPopup::loadPage(int page) {
-    m_page = (4 + (page % 4)) % 4;
+    m_page = (6 + (page % 6)) % 6;
 
     auto sfc = CCSpriteFrameCache::get();
     for (int i = 0; i < 5; i++) {

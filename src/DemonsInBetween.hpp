@@ -5,8 +5,8 @@
 #include <matjson.hpp>
 
 struct DemonBreakdown {
-    std::array<int, 21> classic = {};
-    std::array<int, 21> platformer = {};
+    std::array<int, 31> classic = {};
+    std::array<int, 31> platformer = {};
     int weekly = 0;
     int event = 0;
     int gauntlet = 0;

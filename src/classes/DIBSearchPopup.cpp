@@ -18,7 +18,7 @@ DIBSearchPopup* DIBSearchPopup::create() {
 }
 
 bool DIBSearchPopup::init() {
-    if (!Popup::init(350.0f, 280.0f)) return false;
+    if (!Popup::init(370.0f, 280.0f)) return false;
 
     setID("DIBSearchPopup");
     setTitle("Quick Search");
@@ -29,12 +29,12 @@ bool DIBSearchPopup::init() {
     m_closeBtn->setID("close-button");
     m_noElasticity = true;
 
-    auto table = TableNode::create(5, 4, 350.0f, 240.0f, "search-button-row");
-    table->setPosition({ 175.0f, 130.0f });
+    auto table = TableNode::create(6, 5, 400.0f, 240.0f, "search-button-row");
+    table->setPosition({ 185.0f, 130.0f });
     table->setID("search-buttons");
     m_mainLayer->addChild(table);
 
-    for (int i = 1; i < 21; i++) {
+    for (int i = 1; i < 31; i++) {
         auto button = CCMenuItemSpriteExtra::create(
             CCSprite::createWithSpriteFrameName(fmt::format("DIB_{:02d}_btn2_001.png"_spr, i).c_str()),
             this, menu_selector(DIBSearchPopup::onSearch)

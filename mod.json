@@ -6,7 +6,7 @@
         "mac": "2.2081",
         "ios": "2.2081"
     },
-    "version": "v1.6.0",
+    "version": "v1.7.0",
     "id": "hiimjustin000.demons_in_between",
     "name": "Demons In Between",
     "developer": "hiimjasmine00",
@@ -73,6 +73,12 @@
         "gddp-integration-override": {
             "name": "GDDP Override",
             "description": "Whether or not to override the GDDP difficulties.",
+            "type": "bool",
+            "default": false
+        },
+        "grandpa-demon-override": {
+            "name": "Grandpa Demon Override",
+            "description": "Whether or not to override the Grandpa Demon difficulties.",
             "type": "bool",
             "default": false
         },
