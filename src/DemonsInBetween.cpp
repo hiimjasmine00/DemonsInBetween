@@ -15,11 +15,7 @@ using namespace geode::prelude;
 using namespace jasmine::mod;
 
 std::map<int, LadderDemon> DemonsInBetween::gddl;
-std::map<int, std::vector<std::string>> DemonsInBetween::gddlDifficulties = {
-    { 1, {} }, { 2, {} }, { 3, {} }, { 4, {} }, { 5, {} }, { 6, {} }, { 7, {} }, { 8, {} }, { 9, {} }, { 10, {} },
-    { 11, {} }, { 12, {} }, { 13, {} }, { 14, {} }, { 15, {} }, { 16, {} }, { 17, {} }, { 18, {} }, { 19, {} }, { 20, {} },
-    { 21, {} }, { 22, {} }, { 23, {} }, { 24, {} }, { 25, {} }, { 26, {} }, { 27, {} }, { 28, {} }, { 29, {} }, { 30, {} }
-};
+std::map<int, std::vector<std::string>> DemonsInBetween::gddlDifficulties = {};
 
 // Yes, this is hardcoded, but surely I'll update this when a new top 1 is rated, right? Right? ...Right?
 constexpr int hardestDemon = 127323087;
@@ -63,7 +59,6 @@ $on_game(Loaded) {
                             int roundedTier = round(demon.tier);
                             demon.difficulty = roundedTier < difficulties.size() ? difficulties[roundedTier] : 29;
                         }
-                        if (demon.difficulty > 0) DemonsInBetween::gddlDifficulties[demon.difficulty].push_back(fmt::to_string(demon.id));
                         else break;
                     }
                     else if (key == "Enjoyment") {
@@ -128,13 +123,6 @@ GJFeatureState DemonsInBetween::stateForLevel(GJGameLevel* level) {
     if (state == GJFeatureState::Legendary && !jasmine::setting::getValue<bool>("enable-legendary")) state = GJFeatureState::None;
     else if (state == GJFeatureState::Mythic && !jasmine::setting::getValue<bool>("enable-mythic")) state = GJFeatureState::None;
     return state;
-}
-
-GJSearchObject* DemonsInBetween::searchObjectForPage(int difficulty, int page) {
-    if (difficulty <= 0) return nullptr;
-
-    auto& levels = gddlDifficulties[difficulty];
-    return jasmine::search::getObject(levels.begin() + page * 10, std::min(levels.end(), levels.begin() + (page + 1) * 10));
 }
 
 DemonBreakdown DemonsInBetween::createBreakdown() {

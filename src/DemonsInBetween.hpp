@@ -27,6 +27,5 @@ namespace DemonsInBetween {
     cocos2d::CCSprite* spriteForDifficulty(const cocos2d::CCPoint& position, int difficulty, GJDifficultyName name, GJFeatureState state);
     GJFeatureState stateForLevel(GJGameLevel* level);
     cocos2d::CCScene* browseScene(int difficulty);
-    GJSearchObject* searchObjectForPage(int difficulty, int page);
     DemonBreakdown createBreakdown();
 }

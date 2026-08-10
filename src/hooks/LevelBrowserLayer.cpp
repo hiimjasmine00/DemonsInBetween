@@ -2,6 +2,7 @@
 #include <Geode/binding/SetIDPopup.hpp>
 #include <Geode/modify/LevelBrowserLayer.hpp>
 #include <Geode/utils/random.hpp>
+#include <jasmine/search.hpp>
 
 using namespace geode::prelude;
 class $modify(DIBLevelBrowserLayer, LevelBrowserLayer) {
@@ -10,6 +11,7 @@ class $modify(DIBLevelBrowserLayer, LevelBrowserLayer) {
         int m_searchSize = 0;
         int m_maxPage = 0;
         int m_currentPage = 0;
+        const std::vector<std::string>* m_levels = nullptr;
     };
 
     static void onModify(ModifyBase<ModifyDerive<DIBLevelBrowserLayer, LevelBrowserLayer>>& self) {
@@ -42,25 +44,36 @@ class $modify(DIBLevelBrowserLayer, LevelBrowserLayer) {
         return true;
     }
 
+    void loadCurrentPage() {
+        auto f = m_fields.self();
+        auto levels = f->m_levels;
+        if (!levels) return;
+        auto page = f->m_currentPage;
+        loadPage(jasmine::search::getObject(levels->begin() + page * 10, std::min(levels->end(), levels->begin() + (page + 1) * 10)));
+    }
+
     void onBetterInfoRandom(CCObject* sender) {
         auto f = m_fields.self();
         if (f->m_difficulty <= 0) return;
 
-        loadPage(DemonsInBetween::searchObjectForPage(f->m_difficulty, f->m_currentPage = random::generate(0, f->m_maxPage)));
+        f->m_currentPage = random::generate(0, f->m_maxPage);
+        loadCurrentPage();
     }
 
     void onBetterInfoLast(CCObject* sender) {
         auto f = m_fields.self();
         if (f->m_difficulty <= 0) return;
 
-        loadPage(DemonsInBetween::searchObjectForPage(f->m_difficulty, f->m_currentPage = f->m_maxPage));
+        f->m_currentPage = f->m_maxPage;
+        loadCurrentPage();
     }
 
     void onBetterInfoFirst(CCObject* sender) {
         auto f = m_fields.self();
         if (f->m_difficulty <= 0) return;
 
-        loadPage(DemonsInBetween::searchObjectForPage(f->m_difficulty, f->m_currentPage = 0));
+        f->m_currentPage = 0;
+        loadCurrentPage();
     }
 
     void updatePageButtons() {
@@ -124,7 +137,8 @@ class $modify(DIBLevelBrowserLayer, LevelBrowserLayer) {
         auto f = m_fields.self();
         if (f->m_difficulty <= 0 || popup->getTag() == 4) return;
 
-        loadPage(DemonsInBetween::searchObjectForPage(f->m_difficulty, f->m_currentPage = std::min(page - 1, f->m_maxPage)));
+        f->m_currentPage = std::min(page - 1, f->m_maxPage);
+        loadCurrentPage();
     }
 
     void onGoToPage(CCObject* sender) {
@@ -145,7 +159,8 @@ class $modify(DIBLevelBrowserLayer, LevelBrowserLayer) {
         auto f = m_fields.self();
         if (f->m_difficulty <= 0) return;
 
-        loadPage(DemonsInBetween::searchObjectForPage(f->m_difficulty, ++f->m_currentPage));
+        f->m_currentPage++;
+        loadCurrentPage();
     }
 
     void onPrevPage(CCObject* sender) {
@@ -154,7 +169,8 @@ class $modify(DIBLevelBrowserLayer, LevelBrowserLayer) {
         auto f = m_fields.self();
         if (f->m_difficulty <= 0) return;
 
-        loadPage(DemonsInBetween::searchObjectForPage(f->m_difficulty, --f->m_currentPage));
+        f->m_currentPage--;
+        loadCurrentPage();
     }
 #ifdef GEODE_IS_MACOS // In the Geometry Dash binary for macOS, onNextPage and onPrevPage are inlined into keyDown
     void keyDown(enumKeyCodes key, double timestamp) override {
@@ -166,12 +182,14 @@ class $modify(DIBLevelBrowserLayer, LevelBrowserLayer) {
         switch (key) {
             case KEY_Left: case CONTROLLER_Left:
                 if (m_leftArrow && m_leftArrow->isVisible() && m_leftArrow->isEnabled()) {
-                    loadPage(DemonsInBetween::searchObjectForPage(f->m_difficulty, --f->m_currentPage));
+                    f->m_currentPage--;
+                    loadCurrentPage();
                 }
                 break;
             case KEY_Right: case CONTROLLER_Right:
                 if (m_rightArrow && m_rightArrow->isVisible() && m_rightArrow->isEnabled()) {
-                    loadPage(DemonsInBetween::searchObjectForPage(f->m_difficulty, ++f->m_currentPage));
+                    f->m_currentPage++;
+                    loadCurrentPage();
                 }
                 break;
             default:
@@ -187,10 +205,20 @@ CCScene* DemonsInBetween::browseScene(int difficulty) {
     auto layer = static_cast<DIBLevelBrowserLayer*>(new LevelBrowserLayer());
     auto f = layer->m_fields.self();
     f->m_difficulty = difficulty;
-    auto& levels = DemonsInBetween::gddlDifficulties[difficulty];
-    f->m_searchSize = levels.size();
-    f->m_maxPage = (levels.size() - 1) / 10;
-    if (layer->init(DemonsInBetween::searchObjectForPage(difficulty, 0))) {
+    std::vector<std::string>* levels;
+    if (auto it = gddlDifficulties.find(difficulty); it != gddlDifficulties.end()) {
+        levels = &it->second;
+    }
+    else {
+        levels = &gddlDifficulties[difficulty];
+        for (auto& [id, demon] : gddl) {
+            if (demon.difficulty == difficulty) levels->push_back(fmt::to_string(id));
+        }
+    }
+    f->m_levels = levels;
+    f->m_searchSize = levels->size();
+    f->m_maxPage = (levels->size() - 1) / 10;
+    if (layer->init(jasmine::search::getObject(levels->begin(), std::min(levels->end(), levels->begin() + 10)))) {
         layer->autorelease();
         scene->addChild(layer);
         return scene;

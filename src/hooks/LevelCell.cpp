@@ -23,22 +23,22 @@ class $modify(DIBLevelCell, LevelCell) {
         if (!difficultyContainer) difficultyContainer = m_mainLayer->getChildByID("grd-demon-icon-layer");
         if (!difficultyContainer) return;
 
-        if (auto grdDifficulty = difficultyContainer->getChildByID("grd-difficulty")) {
-            if (jasmine::setting::getValue<bool>("grandpa-demon-override")) {
-                grdDifficulty->setVisible(false);
-                if (auto grdInfinity = difficultyContainer->getChildByID("grd-infinity")) grdInfinity->setVisible(false);
-            }
-            else return;
-        }
-
         auto difficultySprite = static_cast<CCNodeRGBA*>(difficultyContainer->getChildByID("difficulty-sprite"));
         if (!difficultySprite) return;
 
-        auto gddpDifficulty = difficultyContainer->getChildByID("gddp-difficulty");
-        if (gddpDifficulty && !jasmine::setting::getValue<bool>("gddp-integration-override")) return;
-        else if (gddpDifficulty) gddpDifficulty->setVisible(false);
-
         if (auto demon = DemonsInBetween::demonForLevel(level->m_levelID.value())) {
+            auto gddpDifficulty = difficultyContainer->getChildByID("gddp-difficulty");
+            if (gddpDifficulty && !jasmine::setting::getValue<bool>("gddp-integration-override")) return;
+            else if (gddpDifficulty) gddpDifficulty->setVisible(false);
+
+            if (auto grdDifficulty = difficultyContainer->getChildByID("grd-difficulty")) {
+                if (jasmine::setting::getValue<bool>("grandpa-demon-override")) {
+                    grdDifficulty->setVisible(false);
+                    if (auto grdInfinity = difficultyContainer->getChildByID("grd-infinity")) grdInfinity->setVisible(false);
+                }
+                else return;
+            }
+
             difficultyContainer->addChild(DemonsInBetween::spriteForDifficulty(difficultySprite->getPosition(),
                 demon->difficulty, GJDifficultyName::Short, DemonsInBetween::stateForLevel(m_level)), 3);
             difficultySprite->setOpacity(0);

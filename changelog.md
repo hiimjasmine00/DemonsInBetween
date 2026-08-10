@@ -1,4 +1,9 @@
 # Demons In Between Changelog
+## v1.7.1 (2026-08-09)
+- Fixed a bug where GDDP Override and Grandpa Demon Override would override difficulties before checking if the level was on the GDDL (Reported by [fardcoin](user:16858187))
+- Tweaked internal behavior of Quick Search
+- Updated gallery images to use the new difficulty sprites
+
 ## v1.7.0 (2026-08-08)
 - **The Mega Update**
 - Added 10 new demon difficulties past Extreme Demon

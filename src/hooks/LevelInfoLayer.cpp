@@ -30,23 +30,6 @@ class $modify(DIBLevelInfoLayer, LevelInfoLayer) {
 
         if (level->m_stars.value() < 10) return true;
 
-        auto createDemon = true;
-
-        if (jasmine::setting::getValue<bool>("enable-difficulties")) {
-            if (auto grdDifficulty = getChildByID("grd-difficulty")) {
-                if (jasmine::setting::getValue<bool>("grandpa-demon-override")) {
-                    grdDifficulty->setVisible(false);
-                    if (auto grdInfinity = getChildByID("grd-infinity")) grdInfinity->setVisible(false);
-                }
-                else createDemon = false;
-            }
-            else if (auto gddpDifficulty = getChildByID("gddp-difficulty")) {
-                if (jasmine::setting::getValue<bool>("gddp-integration-override")) gddpDifficulty->setVisible(false);
-                else createDemon = false;
-            }
-        }
-        else createDemon = false;
-
         auto levelID = level->m_levelID.value();
         auto demon = DemonsInBetween::demonForLevel(levelID);
         if (!demon) return true;
@@ -60,7 +43,19 @@ class $modify(DIBLevelInfoLayer, LevelInfoLayer) {
         leftSideMenu->addChild(demonInfoButton);
         leftSideMenu->updateLayout();
 
-        if (createDemon) {
+        if (jasmine::setting::getValue<bool>("enable-difficulties")) {
+            if (auto grdDifficulty = getChildByID("grd-difficulty")) {
+                if (jasmine::setting::getValue<bool>("grandpa-demon-override")) {
+                    grdDifficulty->setVisible(false);
+                    if (auto grdInfinity = getChildByID("grd-infinity")) grdInfinity->setVisible(false);
+                }
+                else return true;
+            }
+            else if (auto gddpDifficulty = getChildByID("gddp-difficulty")) {
+                if (jasmine::setting::getValue<bool>("gddp-integration-override")) gddpDifficulty->setVisible(false);
+                else return true;
+            }
+
             addChild(DemonsInBetween::spriteForDifficulty(m_difficultySprite->getPosition(),
                 demon->difficulty, GJDifficultyName::Long, DemonsInBetween::stateForLevel(m_level)), 3);
             m_difficultySprite->setOpacity(0);
