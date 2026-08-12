@@ -29,8 +29,9 @@ bool DIBSearchPopup::init() {
     m_closeBtn->setID("close-button");
     m_noElasticity = true;
 
-    auto table = TableNode::create(6, 5, 400.0f, 240.0f, "search-button-row");
+    auto table = TableNode::create(6, 5, 400.0f, 290.0f, "search-button-row");
     table->setPosition({ 185.0f, 130.0f });
+    table->setScale(0.825f);
     table->setID("search-buttons");
     m_mainLayer->addChild(table);
 

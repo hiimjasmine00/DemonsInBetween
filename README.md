@@ -23,6 +23,10 @@ Expanded demon difficulties.
 
 ![Demon Info 4](https://raw.githubusercontent.com/hiimjasmine00/DemonsInBetween/refs/heads/master/resources/demon-info-4.png)
 
+![Demon Info 5](https://raw.githubusercontent.com/hiimjasmine00/DemonsInBetween/refs/heads/master/resources/demon-info-5.png)
+
+![Demon Info 6](https://raw.githubusercontent.com/hiimjasmine00/DemonsInBetween/refs/heads/master/resources/demon-info-6.png)
+
 ## Difficulties
 - Free Demon (Tier 1)
 - Peaceful Demon (Tier 2)
