@@ -1,4 +1,7 @@
 # Demons In Between Changelog
+## v1.7.3 (2026-10-15)
+- Fixed a bug where the mod would fail to load on Android devices
+
 ## v1.7.2 (2026-10-15)
 - I have the work ethic of a snail, and even that might be generous.
 - Changed the Infinite Demon from Society to GRIEF
