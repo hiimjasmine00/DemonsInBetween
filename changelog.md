@@ -1,4 +1,8 @@
 # Demons In Between Changelog
+## v1.7.2 (2026-10-15)
+- I have the work ethic of a snail, and even that might be generous.
+- Changed the Infinite Demon from Society to GRIEF
+
 ## v1.7.1 (2026-08-09)
 - Fixed a bug where GDDP Override and Grandpa Demon Override would override difficulties before checking if the level was on the GDDL (Reported by [fardcoin](user:16858187))
 - Tweaked internal behavior of Quick Search

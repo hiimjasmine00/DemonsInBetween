@@ -18,7 +18,7 @@ std::map<int, LadderDemon> DemonsInBetween::gddl;
 std::map<int, std::vector<std::string>> DemonsInBetween::gddlDifficulties = {};
 
 // Yes, this is hardcoded, but surely I'll update this when a new top 1 is rated, right? Right? ...Right?
-constexpr int hardestDemon = 127323087;
+constexpr int hardestDemon = 149992717;
 
 $on_game(Loaded) {
     spawn(
