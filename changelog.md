@@ -1,4 +1,7 @@
 # Demons In Between Changelog
+## v1.7.4 (2026-11-27)
+- Ported to Geometry Dash v2.209 / Geode SDK v6.0.0
+
 ## v1.7.3 (2026-10-15)
 - Fixed a bug where the mod would fail to load on Android devices
 

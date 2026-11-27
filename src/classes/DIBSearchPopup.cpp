@@ -1,5 +1,6 @@
 #include "DIBSearchPopup.hpp"
 #include "../DemonsInBetween.hpp"
+#include <Geode/cocos/layers_scenes_transitions_nodes/CCTransition.h>
 #include <jasmine/mod.hpp>
 #include <jasmine/nodes.hpp>
 

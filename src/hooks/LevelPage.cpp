@@ -1,6 +1,7 @@
 #include "../DemonsInBetween.hpp"
 #include <Geode/binding/GameStatsManager.hpp>
 #include <Geode/binding/GJGameLevel.hpp>
+#include <Geode/cocos/extensions/GUI/CCControlExtension/CCScale9Sprite.h>
 #include <Geode/modify/LevelPage.hpp>
 #include <jasmine/hook.hpp>
 

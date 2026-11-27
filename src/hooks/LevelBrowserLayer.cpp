@@ -116,7 +116,7 @@ class $modify(DIBLevelBrowserLayer, LevelBrowserLayer) {
         updatePageButtons();
     }
 
-    void setupPageInfo(gd::string pageInfo, const char* key) override {
+    void setupPageInfo(std::string pageInfo, const char* key) override {
         LevelBrowserLayer::setupPageInfo(pageInfo, key);
 
         auto f = m_fields.self();

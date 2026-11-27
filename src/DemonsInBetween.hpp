@@ -1,5 +1,5 @@
-#include <cocos2d.h>
 #include <DemonsInBetweenAPI.hpp>
+#include <Geode/cocos/cocoa/CCGeometry.h>
 #include <Geode/Enums.hpp>
 #include <Geode/GeneratedPredeclare.hpp>
 #include <matjson.hpp>

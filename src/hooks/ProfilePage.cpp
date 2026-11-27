@@ -2,7 +2,7 @@
 #include <Geode/binding/GJUserScore.hpp>
 #include <Geode/modify/ProfilePage.hpp>
 #define USER_DATA_API_EVENTS
-#include <hiimjasmine00.user_data_api/include/UserDataAPI.hpp>
+#include <hiimjasmine00.user_data_api/UserDataAPI.hpp>
 #include <jasmine/hook.hpp>
 
 using namespace geode::prelude;
