@@ -74,7 +74,7 @@ class $modify(DIBLevelInfoLayer, LevelInfoLayer) {
             "<cl>Enjoyment</c>: {}\n"
             "<cp>Difficulty</c>: {}\n"
             "<co>Original Difficulty</c>: {}",
-            GEODE_ANDROID(std::string)(m_level->m_levelName),
+            m_level->m_levelName,
             round(demon->tier * 100.0) / 100.0,
             demon->enjoyment >= 0.0 ? fmt::to_string(round(demon->enjoyment * 100.0) / 100.0) : "N/A",
             demon->difficulty < difficulties.size() ? difficulties[demon->difficulty] : "Unknown Demon",

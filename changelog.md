@@ -1,4 +1,7 @@
 # Demons In Between Changelog
+## v1.7.5 (2026-11-27)
+- Fixed a bug where exiting quick search would sometimes crash the game on Android and macOS ([#25](https://github.com/hiimjasmine00/DemonsInBetween/issues/25))
+
 ## v1.7.4 (2026-11-27)
 - Ported to Geometry Dash v2.209 / Geode SDK v6.0.0
 
